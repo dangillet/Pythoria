@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import unittest
 import operator
-from ..pythonia import dungeon
+from pythonia.pythonia import dungeon
 
 class TestMap(unittest.TestCase):
     
@@ -25,5 +25,5 @@ class TestMap(unittest.TestCase):
         self.assertEqual(self.test_map[6, 0], '#')
         self.assertRaises(IndexError, operator.getitem, self.test_map, (10, 0))
         
-        
-        
+if __name__ == '__main__':
+    unittest.main()
