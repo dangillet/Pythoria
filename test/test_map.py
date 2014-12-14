@@ -25,6 +25,12 @@ class TestDungeon(unittest.TestCase):
         self.assertEqual(self.test_map[6, 0], '#')
         self.assertRaises(IndexError, operator.getitem, self.test_map, (10, 0))
     
+    def test_get_bounding_box(self):
+        self.assertEqual(set(self.test_map._get_bounding_box(2, 2, 1)),
+                            set([(1,1), (2,1), (3,1),
+                                 (1,2),        (3,2),
+                                 (1,3), (2,3), (3,3)]))
+    
     def test_reveal(self):
         self.test_map.reveal(1, 1, 1)
         self.assertEqual(self.test_map[0, 0], '#')

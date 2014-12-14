@@ -2,7 +2,7 @@
 #-*- coding: utf-8 -*-
 
 from __future__ import unicode_literals, print_function
-from player import Player
+from library import get_line
 
 class Dungeon(object):
     """
@@ -50,16 +50,37 @@ class Dungeon(object):
         return False
     
     def reveal(self, x, y, radius):
-        "Turn on the visibility in a radius around position (x, y)"
-        # Need to implement circle calculation. Now make a box
+        """
+        Turn on the visibility in a radius around position (x, y)
+        We first get a bounding box around our position. Then we raycast lines
+        going from the position (x, y) to the bounding box. If we hit a wall,
+        we make it visible and stop to look further on that ray.
+        """
+        border = self._get_bounding_box(x, y, radius)
+        for border_x, border_y in border:
+            for tile_x, tile_y in get_line(x, y, border_x, border_y):
+                if self._map[tile_y][tile_x] != '#':
+                    self._visibility[tile_y][tile_x] = True
+                else:
+                    self._visibility[tile_y][tile_x] = True
+                    break
+    
+    def _get_bounding_box(self, x, y, radius):
+        "Return the points delimiting the box at center (x,y) with size radius."
+        # Need to implement circle calculation. Now make a box.
         low_x = max(0, x-radius)
         low_y = max(0, y-radius)
         high_x = min(self.width-1, x+radius)
         high_y = min(self.height-1, y+radius)
-        for j in range(low_y, high_y + 1):
-            for i in range(low_x, high_x + 1):
-                self._visibility[j][i] = True
-    
+        border = [] # Perimiter of the box
+        for j in range(low_y+1, high_y):
+            border.append((low_x, j))
+            border.append((high_x, j))
+        for i in range(low_x, high_x+1):
+            border.append((i, low_y))
+            border.append((i, high_y))
+        return border
+        
     def reveal_all(self):
         "Reveal the whole map"
         self._visibility = [ [True for _ in range(self.width)] for _ in range(self.height)]
