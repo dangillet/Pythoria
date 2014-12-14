@@ -5,8 +5,9 @@ from __future__ import unicode_literals, print_function
 import sys
 import pygcurse, pygame
 from pygame.locals import *
-from dungeon import Map
+from dungeon import Dungeon
 from dungeonview import DungeonView
+from player import Player
 
 class Controller(object):
     def __init__(self, dungeon, view):
@@ -32,10 +33,13 @@ class Controller(object):
         self.dungeon.player.y += direction_y
         if self.dungeon.collide(self.dungeon.player):
             self.dungeon.player.x, self.dungeon.player.y = old_x, old_y
+        else:
+            self.dungeon.reveal(self.dungeon.player.x, self.dungeon.player.y, 2)
 
 if __name__ == '__main__':
     win = pygcurse.PygcurseWindow(40, 20)
-    level1 = Map.load_from_file('map/map.txt')
+    level1 = Dungeon.load_from_file('map/map.txt')
+    level1.add_player(Player(1, 1))
     view = DungeonView(level1, win)
     controller = Controller(level1, view)
     win.autoupdate = False

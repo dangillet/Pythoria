@@ -3,7 +3,7 @@
 from __future__ import unicode_literals, print_function
 
 import pygcurse, pygame
-from dungeon import Map
+from dungeon import Dungeon
 
 PLAYER = '\N{WHITE SMILING FACE}' # Unicode for a smile
 
@@ -24,7 +24,7 @@ class DungeonView(object):
 if __name__ == '__main__':
     import dungeon
     win = pygcurse.PygcurseWindow(40,30)
-    level1 = Map.load_from_file('../test/map.txt')
+    level1 = Dungeon.load_from_file('../test/map.txt')
     view = DungeonView(level1, win)
     view.draw()
     pygcurse.waitforkeypress()
