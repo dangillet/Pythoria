@@ -49,13 +49,14 @@ class Dungeon(object):
         Returns the element of the map at position (x, y)
         taking into consideration the visibility.
         """
-        item = self.__getitem__( (x, y) )
+        item = self[x, y]
         if not self._visibility[y][x]:
             return ' '
         return item
     
-    def collide(self, element):
-        if self.__getitem__( (element.x, element.y) ) == '#':
+    def collide(self, x, y):
+        "Check if a wall exists at position (x, y)"
+        if self[x, y] == '#':
             return True
         return False
     
@@ -69,7 +70,7 @@ class Dungeon(object):
         border = self._get_bounding_circle(x, y, radius)
         for border_x, border_y in border:
             for tile_x, tile_y in get_line(x, y, border_x, border_y):
-                if self._map[tile_y][tile_x] != '#':
+                if self[tile_x, tile_y] != '#':
                     self._visibility[tile_y][tile_x] = True
                     # To remove artifacts, check surrounding cells for a wall
                     self._reveal_adjacent_walls(tile_x, tile_y, x, y)
@@ -90,7 +91,7 @@ class Dungeon(object):
             "Helper function to iterate over the adjacent cells in the given iterator"
             for offset_x , offset_y in cells:
                 if offset_x or offset_y: # Skip position (0, 0)
-                    if self._map[y + offset_y][x + offset_x] == '#':
+                    if self[x + offset_x, y + offset_y] == '#':
                         self._visibility[y + offset_y][x + offset_x] = True
         
         if x < pos_x:
@@ -123,18 +124,15 @@ class Dungeon(object):
     
     def _get_bounding_box(self, x, y, radius):
         "Return the points delimiting the box at center (x, y) with size radius."
-        # Need to implement circle calculation. Now make a box.
-        low_x = max(0, x-radius)
-        low_y = max(0, y-radius)
-        high_x = min(self.width-1, x+radius)
-        high_y = min(self.height-1, y+radius)
-        border = set() # Perimiter of the box
-        for j in range(low_y+1, high_y):
-            border.add((low_x, j))
-            border.add((high_x, j))
-        for i in range(low_x, high_x+1):
-            border.add((i, low_y))
-            border.add((i, high_y))
+        low_x, low_y = self._clamp_in_map(x - radius, y - radius)
+        high_x, high_y = self._clamp_in_map(x + radius, y + radius)
+        border = [] # Perimiter of the box
+        for j in range(low_y + 1, high_y):
+            border.append((low_x, j))
+            border.append((high_x, j))
+        for i in range(low_x, high_x + 1):
+            border.append((i, low_y))
+            border.append((i, high_y))
         return border
     
     def _get_bounding_circle(self, x, y, radius):
@@ -143,10 +141,15 @@ class Dungeon(object):
         for i, point in enumerate(points):
             x, y = point
             if not ((0 <= x < self.width) and (0 <= y < self.height)):
-                x = min(max(0, x), self.width - 1)
-                y = min(max(0, y), self.height - 1)
+                x, y = self._clamp_in_map(x, y)
                 points[i] = (x, y)
         return points
+    
+    def _clamp_in_map(self, x, y):
+        "Returns the position (x, y) bounded by the map geometry"
+        x = min(max(0, x), self.width - 1)
+        y = min(max(0, y), self.height - 1)
+        return x, y
         
     def reveal_all(self):
         "Reveal the whole map"

@@ -61,7 +61,7 @@ if __name__ == '__main__':
     import pygcurse, pygame
     win = pygcurse.PygcurseWindow(40,30)
     win.font = pygame.font.Font(None, 22)
-    points = get_circle(15, 15, 14)
+    points = get_circle(2, 2, 2)
     for p in points:
         win.putchar('O', x=p[0], y=p[1])
     pygcurse.waitforkeypress()

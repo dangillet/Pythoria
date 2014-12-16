@@ -31,7 +31,7 @@ class Controller(object):
         old_x, old_y = self.dungeon.player.x, self.dungeon.player.y
         self.dungeon.player.x += direction_x
         self.dungeon.player.y += direction_y
-        if self.dungeon.collide(self.dungeon.player):
+        if self.dungeon.collide(*self.dungeon.player.pos):
             self.dungeon.player.x, self.dungeon.player.y = old_x, old_y
         else:
             self.dungeon.reveal(self.dungeon.player.x, self.dungeon.player.y, 5)
