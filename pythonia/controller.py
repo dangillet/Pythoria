@@ -34,7 +34,7 @@ class Controller(object):
         if self.dungeon.collide(self.dungeon.player):
             self.dungeon.player.x, self.dungeon.player.y = old_x, old_y
         else:
-            self.dungeon.reveal(self.dungeon.player.x, self.dungeon.player.y, 2)
+            self.dungeon.reveal(self.dungeon.player.x, self.dungeon.player.y, 5)
 
 if __name__ == '__main__':
     win = pygcurse.PygcurseWindow(40, 20)

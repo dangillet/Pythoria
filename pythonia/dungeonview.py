@@ -15,16 +15,18 @@ class DungeonView(object):
         
     def draw(self):
         "Draw the dungeon and the player."
-
+        
         for line in self.dungeon:
             self.win.write(line)
             self.win.write('\n')
         self.win.putchar(PLAYER, x=self.dungeon.player.x, y=self.dungeon.player.y)
+    
 
 if __name__ == '__main__':
-    import dungeon
+    import dungeon, player
     win = pygcurse.PygcurseWindow(40,30)
     level1 = Dungeon.load_from_file('../test/map.txt')
+    level1.add_player(player.Player(1, 1))
     view = DungeonView(level1, win)
     view.draw()
     pygcurse.waitforkeypress()

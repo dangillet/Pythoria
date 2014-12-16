@@ -19,22 +19,23 @@ class TestDungeon(unittest.TestCase):
         self.assertRaises(IOError, dungeon.Dungeon.load_from_file, 'inexistentmap.txt')
     
     def test_getitem(self):
-        self.test_map.reveal_all()
         self.assertEqual(self.test_map[0, 0], '#')
         self.assertEqual(self.test_map[1, 1], ' ')
         self.assertEqual(self.test_map[6, 0], '#')
         self.assertRaises(IndexError, operator.getitem, self.test_map, (10, 0))
     
     def test_get_bounding_box(self):
-        self.assertEqual(set(self.test_map._get_bounding_box(2, 2, 1)),
-                            set([(1,1), (2,1), (3,1),
+        self.assertSetEqual(self.test_map._get_bounding_box(2, 2, 1),
+                                {(1,1), (2,1), (3,1),
                                  (1,2),        (3,2),
-                                 (1,3), (2,3), (3,3)]))
+                                 (1,3), (2,3), (3,3)})
     
     def test_reveal(self):
-        self.test_map.reveal(1, 1, 1)
-        self.assertEqual(self.test_map[0, 0], '#')
-        self.assertEqual(self.test_map[0, 3], ' ')
+        self.test_map.reveal(1, 1, 4)
+        #    #######
+        #    #P....
+        self.assertEqual(self.test_map.show_at(6, 0), '#')
+        self.assertEqual(self.test_map.show_at(7, 0), ' ')
         
 if __name__ == '__main__':
     unittest.main()

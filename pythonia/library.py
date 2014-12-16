@@ -31,3 +31,42 @@ def get_line(x1, y1, x2, y2):
     if rev:
         points.reverse()
     return points
+
+def get_circle(x0, y0, radius):
+    """
+    Algorithm adapted from http://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+    """
+    x = radius
+    y = 0
+    radius_error = 1 - x
+    points = []
+    while x >= y:
+        points.append((x + x0, y + y0))
+        points.append((y + x0, x + y0))
+        points.append((-x + x0, y + y0))
+        points.append((-y + x0, x + y0))
+        points.append((-x + x0, -y + y0))
+        points.append((-y + x0, -x + y0))
+        points.append((x + x0, -y + y0))
+        points.append((y + x0, -x + y0))
+        y += 1
+        if radius_error < 0:
+            radius_error += 2 * y + 1
+        else:
+            x -= 1
+            radius_error += 2 * (y - x + 1)
+    return points
+
+if __name__ == '__main__':
+    import pygcurse, pygame
+    win = pygcurse.PygcurseWindow(40,30)
+    win.font = pygame.font.Font(None, 22)
+    points = get_circle(15, 15, 14)
+    for p in points:
+        win.putchar('O', x=p[0], y=p[1])
+    pygcurse.waitforkeypress()
+            
+            
+    
+    
+    
