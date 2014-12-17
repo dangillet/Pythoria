@@ -7,7 +7,7 @@ from library import get_line, get_circle
 
 class Dungeon(object):
     """
-    The Map object contains all the information regarding the dungeon
+    The Dungeon object contains all the information regarding the dungeon
     """
     def __init__(self):
         self.width = self.height = None
@@ -16,6 +16,13 @@ class Dungeon(object):
     
     @classmethod
     def load_from_file(cls, filename):
+        """
+        Load a dungeon saved in a text file.
+        Format: first line gives number of rows and columns to consider from the
+        text file.
+        Following lines give a text representation of the dungeon.
+        Wall: #
+        """
         with open(filename, 'r') as f:
             size = f.readline()
             dungeon = Dungeon()
