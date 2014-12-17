@@ -8,6 +8,7 @@ from dungeon import Dungeon
 PLAYER = '\N{WHITE SMILING FACE}' # Unicode for a smile
 
 class DungeonView(object):
+    
     def __init__(self, dungeon, win):
         self.dungeon = dungeon
         self.win = win
@@ -17,7 +18,8 @@ class DungeonView(object):
         "Draw the dungeon and the player."
         
         for line in self.dungeon:
-            self.win.write(line)
+            for tile in line:
+                self.win.write(tile.value if tile.visible else ' ')
             self.win.write('\n')
         self.win.putchar(PLAYER, x=self.dungeon.player.x, y=self.dungeon.player.y)
     
