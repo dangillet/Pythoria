@@ -58,7 +58,7 @@ class Dungeon(object):
                     if col == '#':
                         row_tiles.append(Tile('#', block_light=True, blocking=True))
                     elif col == ' ':
-                        row_tiles.append(Tile(' '))
+                        row_tiles.append(Tile())
                     else:
                         raise ValueError("Character '{0}' unrecognized at row {1} col {2}".format(col, row_idx, col_idx))
                 dungeon._map.append(row_tiles)
@@ -90,20 +90,30 @@ class Dungeon(object):
     def reveal(self, x, y, radius):
         """
         Turn on the visibility in a radius around position (x, y)
+        
+        """
+        fov = self.get_field_of_vision(x, y, radius)
+        for tile_x, tile_y in fov:
+            self[tile_x, tile_y].visible = True
+    
+    def get_field_of_vision(self, x, y, radius):
+        """
+        Returns a list of tile coordinates in the field of vision.
         We first get a bounding circle around our position. Then we raycast lines
         going from the position (x, y) to the bounding circle. If we hit a block_light Tile,
         we make it visible and stop to look further on that ray.
         """
+        points = []
         border = self._get_bounding_circle(x, y, radius)
         for border_x, border_y in border:
             for tile_x, tile_y in get_line(x, y, border_x, border_y):
+                points.append( (tile_x, tile_y) )
                 if not self[tile_x, tile_y].block_light:
-                    self[tile_x, tile_y].visible = True
                     # To remove artifacts, check surrounding cells for a wall
-                    self._reveal_adjacent_walls(tile_x, tile_y, x, y)
+                    points.extend(self._reveal_adjacent_walls(tile_x, tile_y, x, y))
                 else:
-                    self[tile_x, tile_y].visible = True
                     break
+        return points
     
     def _reveal_adjacent_walls(self, x, y, pos_x, pos_y):
         """
@@ -119,8 +129,8 @@ class Dungeon(object):
             for offset_x , offset_y in cells:
                 if offset_x or offset_y: # Skip position (0, 0)
                     if self[x + offset_x, y + offset_y].block_light:
-                        self[x + offset_x, y + offset_y].visible = True
-        
+                        points.append( (x + offset_x, y + offset_y) )
+        points = []
         if x < pos_x:
             # NW sector
             if y < pos_y:
@@ -148,6 +158,7 @@ class Dungeon(object):
             # S
             elif y > pos_y:
                 iter_adjacent_cells(itertools.product((-1, 0, 1), (1, 0)))
+        return points
     
     def _get_bounding_box(self, x, y, radius):
         "Return the points delimiting the box at center (x, y) with size radius."
