@@ -1,6 +1,6 @@
-#!/usr/env/ python
-#-*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals, division
 
 import sys
 import pygcurse, pygame
