@@ -1,6 +1,6 @@
-Pythonia
+Pythoria
 ========
-Pythonia est un projet de jeu de rôle sous console. Son but est l'apprentissage
+Pythoria est un projet de jeu de rôle sous console. Son but est l'apprentissage
 du Python et des architectures de programmation.
 
 Au programme:

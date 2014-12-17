@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import unittest
 import operator
-from pythonia.pythonia import dungeon
+from pythoria import dungeon
 
 class TestDungeon(unittest.TestCase):
     
