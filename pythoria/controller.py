@@ -28,6 +28,8 @@ class Controller(object):
             direction_y -= 1
         elif event.type == KEYDOWN and event.key == K_DOWN:
             direction_y += 1
+        #elif event.type == KEYDOWN and event.key == K_p:
+            #print(self.dungeon.get_field_of_vision(self.dungeon.player.x, self.dungeon.player.y, 5))
         old_x, old_y = self.dungeon.player.x, self.dungeon.player.y
         self.dungeon.player.x += direction_x
         self.dungeon.player.y += direction_y

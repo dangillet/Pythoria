@@ -60,13 +60,13 @@ class TestDungeon(unittest.TestCase):
         self.test_map.reveal(1, 1, 4)
         #    #######
         #    #P....
-        self.assertEqual(self.test_map[6, 0], WALL)
-        self.assertEqual(self.test_map[7, 0], WALL_HIDDEN)
+        self.assertEqual(self.test_map[5, 0], WALL)
+        self.assertEqual(self.test_map[6, 0], WALL_HIDDEN)
     
     def test_reveal_adjacent_walls(self):
         x, y = 1, 1
-        points = set(self.test_map._reveal_adjacent_walls(3, 1, x, y))
-        self.assertEqual(points, {(3, 0), (4,0)})
+        points = self.test_map._reveal_adjacent_walls(3, 1, x, y, 5)
+        self.assertEqual(points, {(3, 0), (4, 0), (3, 2), (4, 1), (4, 2)})
 
     def test_clamp_in_map(self):
         x, y = -1, -1

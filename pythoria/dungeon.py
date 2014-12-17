@@ -103,34 +103,38 @@ class Dungeon(object):
         going from the position (x, y) to the bounding circle. If we hit a block_light Tile,
         we make it visible and stop to look further on that ray.
         """
-        points = []
+        points = set()
         border = self._get_bounding_circle(x, y, radius)
         for border_x, border_y in border:
             for tile_x, tile_y in get_line(x, y, border_x, border_y):
-                points.append( (tile_x, tile_y) )
+                points.add( (tile_x, tile_y) )
                 if not self[tile_x, tile_y].block_light:
                     # To remove artifacts, check surrounding cells for a wall
-                    points.extend(self._reveal_adjacent_walls(tile_x, tile_y, x, y))
+                    points.update(self._reveal_adjacent_walls(tile_x, tile_y, x, y, radius))
                 else:
                     break
         return points
     
-    def _reveal_adjacent_walls(self, x, y, pos_x, pos_y):
+    def _reveal_adjacent_walls(self, x, y, pos_x, pos_y, radius):
         """
-        In order to remove artifacts in the field of view, we show all walls
-        adjacent to a visible empty cell.
+        In order to remove artifacts in the field of view, we show all Tiles
+        adjacent to a visible non blocking-light Tile.
+        x, y is the position of the tile from where we check the surrounding.
         pos_x, pos_y is the position from where we reveal cells, normally
-        the player position
-        See: https://sites.google.com/site/jicenospam/visibilitydetermination
+        the player position.
+        radius is the vision radius
+        Adapted from: https://sites.google.com/site/jicenospam/visibilitydetermination
         """
 
         def iter_adjacent_cells(cells):
             "Helper function to iterate over the adjacent cells in the given iterator"
             for offset_x , offset_y in cells:
                 if offset_x or offset_y: # Skip position (0, 0)
-                    if self[x + offset_x, y + offset_y].block_light:
-                        points.append( (x + offset_x, y + offset_y) )
-        points = []
+                    if (x + offset_x - pos_x)**2 + (y + offset_y - pos_y)**2 > (radius+0.5)**2:
+                        break
+                    points.add( (x + offset_x, y + offset_y) )
+        
+        points = set()
         if x < pos_x:
             # NW sector
             if y < pos_y:
