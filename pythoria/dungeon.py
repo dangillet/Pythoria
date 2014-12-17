@@ -27,7 +27,7 @@ class Dungeon(object):
             dungeon = Dungeon()
             dungeon.width, dungeon.height = map(int, size.strip().split(' '))
             dungeon._map = f.readlines()
-            dungeon._map = map(lambda s: s.strip(), dungeon._map)
+            dungeon._map = list(map(lambda s: s.strip(), dungeon._map))
             dungeon._visibility = [ [False for _ in range(dungeon.width)] for _ in range(dungeon.height)]
         return dungeon
     
