@@ -6,6 +6,19 @@ import unittest
 import operator
 from pythoria import dungeon
 
+EMPTY_SPACE = dungeon.Tile()
+WALL = dungeon.Tile('#', True, True, True)
+WALL_HIDDEN = dungeon.Tile('#', True, True)
+
+class TestTile(unittest.TestCase):
+    def test_eq(self):
+        t1 = dungeon.Tile('#', True, True, True)
+        t2 = dungeon.Tile('#', True, True, True)
+        t3 = dungeon.Tile('#', True, True, False)
+        self.assertTrue(t1 == t2)
+        self.assertFalse(t1 == t3)
+        self.assertTrue(t1 != t3)
+        
 class TestDungeon(unittest.TestCase):
     
     def setUp(self):
@@ -20,9 +33,9 @@ class TestDungeon(unittest.TestCase):
         self.assertRaises(IOError, dungeon.Dungeon.load_from_file, 'inexistentmap.txt')
     
     def test_getitem(self):
-        self.assertEqual(self.test_map[0, 0], dungeon.Tile('#', True, True))
-        self.assertEqual(self.test_map[1, 1], dungeon.Tile(' '))
-        self.assertEqual(self.test_map[6, 0], dungeon.Tile('#', True, True))
+        self.assertEqual(self.test_map[0, 0], WALL_HIDDEN)
+        self.assertEqual(self.test_map[1, 1], EMPTY_SPACE)
+        self.assertEqual(self.test_map[6, 0], WALL_HIDDEN)
         self.assertRaises(IndexError, operator.getitem, self.test_map, (10, 0))
     
     def test_collide(self):
@@ -47,15 +60,15 @@ class TestDungeon(unittest.TestCase):
         self.test_map.reveal(1, 1, 4)
         #    #######
         #    #P....
-        self.assertEqual(self.test_map.show_at(6, 0), '#')
-        self.assertEqual(self.test_map.show_at(7, 0), ' ')
+        self.assertEqual(self.test_map[6, 0], WALL)
+        self.assertEqual(self.test_map[7, 0], WALL_HIDDEN)
     
     def test_reveal_adjacent_walls(self):
         x, y = 1, 1
         self.test_map._reveal_adjacent_walls(3, 1, x, y)
-        self.assertEqual(self.test_map.show_at(3, 0), '#')
-        self.assertEqual(self.test_map.show_at(4, 0), '#')
-        self.assertEqual(self.test_map.show_at(2, 0), ' ')
+        self.assertEqual(self.test_map[3, 0], WALL)
+        self.assertEqual(self.test_map[4, 0], WALL)
+        self.assertEqual(self.test_map[2, 0], WALL_HIDDEN)
 
     def test_clamp_in_map(self):
         x, y = -1, -1

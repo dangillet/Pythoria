@@ -24,6 +24,9 @@ class Tile(object):
         
     def __ne__(self, other):
         return not self == other
+    
+    def __repr__(self):
+        return '<Tile {0}{1}>'.format(self.value, ' visible' if self.visible else '')
         
 class Dungeon(object):
     """
@@ -77,17 +80,6 @@ class Dungeon(object):
         if not ((0 <= x < self.width) and (0 <= y < self.height)):
             raise IndexError
         return self._map[y][x]
-    
-    def show_at(self, x, y):
-        """
-        Returns the Tile at position (x, y)
-        taking into consideration the visibility.
-        """
-        # Need to think about what this is intended to do. Who is responsible for the tile visibility? Model or view?
-        item = self[x, y]
-        if not item.visible:
-            return ' '
-        return item.value
     
     def collide(self, x, y):
         "Check if the Tile at position (x, y) is blocking."
