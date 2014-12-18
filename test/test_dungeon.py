@@ -65,9 +65,12 @@ class TestDungeon(unittest.TestCase):
     
     def test_reveal_adjacent_walls(self):
         x, y = 1, 1
-        points = self.test_map._reveal_adjacent_walls(3, 1, x, y, 5)
+        points = self.test_map._reveal_adjacent_walls(3, 1, x, y, 5, set())
         self.assertEqual(points, {(3, 0), (4, 0), (3, 2), (4, 1), (4, 2)})
 
+    def test_free_line_of_sight(self):
+        self.assertTrue(self.test_map._free_line_of_sight(1, 1, 3, 2))
+    
     def test_clamp_in_map(self):
         x, y = -1, -1
         self.assertEqual(self.test_map._clamp_in_map(x, y), (0, 0))

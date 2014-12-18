@@ -91,7 +91,6 @@ class Dungeon(object):
     def reveal(self, x, y, radius):
         """
         Turn on the visibility in a radius around position (x, y)
-        
         """
         fov = self.get_field_of_vision(x, y, radius)
         for tile_x, tile_y in fov:
@@ -111,29 +110,38 @@ class Dungeon(object):
                 points.add( (tile_x, tile_y) )
                 if not self[tile_x, tile_y].block_light:
                     # To remove artifacts, check surrounding cells for a wall
-                    points.update(self._reveal_adjacent_walls(tile_x, tile_y, x, y, radius))
+                    points.update(self._reveal_adjacent_walls(tile_x, tile_y, x, y, radius, points))
                 else:
                     break
         return points
     
-    def _reveal_adjacent_walls(self, x, y, pos_x, pos_y, radius):
+    def _reveal_adjacent_walls(self, x, y, pos_x, pos_y, radius, points_visited):
         """
         In order to remove artifacts in the field of view, we show all Tiles
-        adjacent to a visible non blocking-light Tile.
+        adjacent to a visible non blocking-light Tile. We make sure this new tile
+        remains within the given radius. If the adjacent cell is not a wall, we check
+        if we have line of sight between this cell and the (pos_x, pos_y) position.
         x, y is the position of the tile from where we check the surrounding.
-        pos_x, pos_y is the position from where we reveal cells, normally
+        pos_x, pos_y: the position from where we reveal cells, normally
         the player position.
-        radius is the vision radius
+        radius: the vision radius
+        points: the set containing the points already visited
         Adapted from: https://sites.google.com/site/jicenospam/visibilitydetermination
         """
 
         def iter_adjacent_cells(cells):
             "Helper function to iterate over the adjacent cells in the given iterator"
             for offset_x , offset_y in cells:
-                if offset_x or offset_y: # Skip position (0, 0)
-                    if (x + offset_x - pos_x)**2 + (y + offset_y - pos_y)**2 > (radius+0.5)**2:
-                        break
-                    points.add( (x + offset_x, y + offset_y) )
+                if not (abs(offset_x) or abs(offset_y)): # Skip position (0, 0)
+                    continue
+                if (x + offset_x, y + offset_y) in points_visited:
+                    continue
+                if (x + offset_x - pos_x)**2 + (y + offset_y - pos_y)**2 > (radius+0.5)**2:
+                    continue
+                if not self[x + offset_x, y + offset_y].block_light:
+                    if not self._free_line_of_sight(pos_x, pos_y, x + offset_x, y + offset_y):
+                        continue
+                points.add( (x + offset_x, y + offset_y) )
         
         points = set()
         if x < pos_x:
@@ -164,6 +172,14 @@ class Dungeon(object):
             elif y > pos_y:
                 iter_adjacent_cells(itertools.product((-1, 0, 1), (1, 0)))
         return points
+    
+    def _free_line_of_sight(self, x0, y0, x1, y1):
+        "Check if the line is free of cells blocking the light."
+        line = get_line(x0, y0, x1, y1)
+        for cell in line:
+            if self[cell].block_light:
+                return False
+        return True
     
     def _get_bounding_box(self, x, y, radius):
         "Return the points delimiting the box at center (x, y) with size radius."
