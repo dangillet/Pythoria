@@ -35,6 +35,7 @@ class Dungeon(object):
     def __init__(self):
         self.width = self.height = None
         self._map = None
+        self.player = None
     
     @classmethod
     def load_from_file(cls, filename):
