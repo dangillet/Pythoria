@@ -30,13 +30,14 @@ class Controller(object):
         elif event.type == KEYDOWN and event.key == K_DOWN:
             direction_y += 1
 
-        old_x, old_y = self.player.x, self.player.y
-        self.player.x += direction_x
-        self.player.y += direction_y
-        if self.dungeon.collide(*self.player.pos):
-            self.player.x, self.player.y = old_x, old_y
-        else:
-            self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
+        if direction_x or direction_y:
+            old_x, old_y = self.player.x, self.player.y
+            self.player.x += direction_x
+            self.player.y += direction_y
+            if self.dungeon.collide(*self.player.pos):
+                self.player.x, self.player.y = old_x, old_y
+            else:
+                self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
                                                                self.player.y,
                                                                5)
             self.dungeon.reveal(self.player.fov)
