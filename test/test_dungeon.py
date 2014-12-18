@@ -57,11 +57,18 @@ class TestDungeon(unittest.TestCase):
                                  (1,4), (2,4), (3,4)})
     
     def test_reveal(self):
-        self.test_map.reveal(1, 1, 4)
+        self.test_map.reveal([(4, 0)])
+
+        self.assertEqual(self.test_map[4, 0], WALL)
+        self.assertEqual(self.test_map[5, 0], WALL_HIDDEN)
+    
+    def test_get_field_of_vision(self):
+        fov = self.test_map.get_field_of_vision(1, 1, 4)
+        #    0123456
         #    #######
         #    #P....
-        self.assertEqual(self.test_map[5, 0], WALL)
-        self.assertEqual(self.test_map[6, 0], WALL_HIDDEN)
+        self.assertIn((5,0), fov)
+        self.assertNotIn((6, 0), fov)
     
     def test_reveal_adjacent_walls(self):
         x, y = 1, 1

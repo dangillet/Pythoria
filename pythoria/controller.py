@@ -12,6 +12,7 @@ from player import Player
 class Controller(object):
     def __init__(self, dungeon, view):
         self.dungeon = dungeon
+        self.player = self.dungeon.player
         self.view = view
         
     def process_event(self, event):
@@ -28,15 +29,17 @@ class Controller(object):
             direction_y -= 1
         elif event.type == KEYDOWN and event.key == K_DOWN:
             direction_y += 1
-        #elif event.type == KEYDOWN and event.key == K_p:
-            #print(self.dungeon.get_field_of_vision(self.dungeon.player.x, self.dungeon.player.y, 5))
-        old_x, old_y = self.dungeon.player.x, self.dungeon.player.y
-        self.dungeon.player.x += direction_x
-        self.dungeon.player.y += direction_y
-        if self.dungeon.collide(*self.dungeon.player.pos):
-            self.dungeon.player.x, self.dungeon.player.y = old_x, old_y
+
+        old_x, old_y = self.player.x, self.player.y
+        self.player.x += direction_x
+        self.player.y += direction_y
+        if self.dungeon.collide(*self.player.pos):
+            self.player.x, self.player.y = old_x, old_y
         else:
-            self.dungeon.reveal(self.dungeon.player.x, self.dungeon.player.y, 5)
+            self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
+                                                               self.player.y,
+                                                               5)
+            self.dungeon.reveal(self.player.fov)
 
 if __name__ == '__main__':
     win = pygcurse.PygcurseWindow(40, 20)

@@ -51,7 +51,7 @@ class Dungeon(object):
             dungeon = Dungeon()
             dungeon.width, dungeon.height = map(int, size.strip().split(' '))
             dungeon_map = f.readlines()
-            dungeon_map = list(map(lambda s: s.strip(), dungeon_map))
+            dungeon_map = list(map(lambda s: s.strip('\n'), dungeon_map))
             dungeon._map = []
             for row_idx, row in enumerate(dungeon_map):
                 row_tiles = []
@@ -68,7 +68,8 @@ class Dungeon(object):
     def add_player(self, player):
         "Add the player in the dungeon"
         self.player = player
-        self.reveal(player.x, player.y, 5)
+        self.player.fov = self.get_field_of_vision(player.x, player.y, 5)
+        self.reveal(self.player.fov)
     
     def __iter__(self):
         "Iterate over the rows of the dungeon"
@@ -88,12 +89,11 @@ class Dungeon(object):
             return True
         return False
     
-    def reveal(self, x, y, radius):
+    def reveal(self, cells):
         """
-        Turn on the visibility in a radius around position (x, y)
+        Turn on the visibility in the given cells
         """
-        fov = self.get_field_of_vision(x, y, radius)
-        for tile_x, tile_y in fov:
+        for tile_x, tile_y in cells:
             self[tile_x, tile_y].visible = True
     
     def get_field_of_vision(self, x, y, radius):
