@@ -44,6 +44,8 @@ class Dungeon(object):
         Format: first line gives number of rows and columns to consider from the
         text file.
         Following lines give a text representation of the dungeon.
+        If given width or height is greater than actual text, white spaces added
+        to fulfill width and height criteria.
         Wall: #
         """
         with codecs.open(filename, 'r', encoding='utf-8') as f:
@@ -51,7 +53,14 @@ class Dungeon(object):
             dungeon = Dungeon()
             dungeon.width, dungeon.height = map(int, size.strip().split(' '))
             dungeon_map = f.readlines()
-            dungeon_map = list(map(lambda s: s.strip('\n'), dungeon_map))
+            dungeon_map = list(map(lambda s: s.strip('\r\n'), dungeon_map))
+            
+            for idx, line in enumerate(dungeon_map):
+                if len(line) < dungeon.width:
+                    dungeon_map[idx] += ' ' * (dungeon.width - len(line))
+            if len(dungeon_map) < dungeon.height:
+                dungeon_map.extend([' ' * dungeon.width for _ in range(dungeon.height - len(dungeon_map))])
+            
             dungeon._map = []
             for row_idx, row in enumerate(dungeon_map):
                 row_tiles = []

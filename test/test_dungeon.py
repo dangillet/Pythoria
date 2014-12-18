@@ -26,8 +26,15 @@ class TestDungeon(unittest.TestCase):
     
     def test_load_from_file(self):
         self.assertEqual(self.test_map.width, 10)
-        self.assertEqual(self.test_map.height, 6)
+        self.assertEqual(self.test_map.height, 8)
         self.assertRaises(ValueError, dungeon.Dungeon.load_from_file, 'map_wrong_char.txt')
+    
+    def test_iter(self):
+        height = 0
+        for line in self.test_map:
+            self.assertEqual(len(line), self.test_map.width)
+            height += 1
+        self.assertEqual(height, self.test_map.height)
     
     def test_failed_loading(self):
         self.assertRaises(IOError, dungeon.Dungeon.load_from_file, 'inexistentmap.txt')
