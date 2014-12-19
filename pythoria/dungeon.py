@@ -32,11 +32,41 @@ class Dungeon(object):
     """
     The Dungeon object contains all the information regarding the dungeon
     """
-    def __init__(self):
-        self.width = self.height = None
+    def __init__(self, width=None, height=None, dungeon_map=None):
+        self.width = width
+        self.height = height
         self._map = None
         self.player = None
-    
+        
+        if dungeon_map:
+            self._parse_text(dungeon_map)
+        elif width is not None and height is not None:
+            self._map = [[Tile() for col in range(width)] for row in range(height)]
+            
+    def _parse_text(self, dungeon_map):
+        """
+        Parse a list of strings into a Dungeon Map filled with Tiles
+        Whitespace for empty tile
+        # for walls
+        """
+        for idx, line in enumerate(dungeon_map):
+            if len(line) < self.width:
+                dungeon_map[idx] += ' ' * (self.width - len(line))
+        if len(dungeon_map) < self.height:
+            dungeon_map.extend([' ' * self.width for _ in range(self.height - len(dungeon_map))])
+        
+        self._map = []
+        for row_idx, row in enumerate(dungeon_map):
+            row_tiles = []
+            for col_idx, col in enumerate(row):
+                if col == '#':
+                    row_tiles.append(Tile('#', block_light=True, blocking=True))
+                elif col == ' ':
+                    row_tiles.append(Tile())
+                else:
+                    raise ValueError("Character '{0}' unrecognized at row {1} col {2}".format(col, row_idx, col_idx))
+            self._map.append(row_tiles)
+            
     @classmethod
     def load_from_file(cls, filename):
         """
@@ -50,29 +80,11 @@ class Dungeon(object):
         """
         with codecs.open(filename, 'r', encoding='utf-8') as f:
             size = f.readline()
-            dungeon = Dungeon()
-            dungeon.width, dungeon.height = map(int, size.strip().split(' '))
+            width, height = map(int, size.strip().split(' '))
             dungeon_map = f.readlines()
             dungeon_map = list(map(lambda s: s.strip('\r\n'), dungeon_map))
-            
-            for idx, line in enumerate(dungeon_map):
-                if len(line) < dungeon.width:
-                    dungeon_map[idx] += ' ' * (dungeon.width - len(line))
-            if len(dungeon_map) < dungeon.height:
-                dungeon_map.extend([' ' * dungeon.width for _ in range(dungeon.height - len(dungeon_map))])
-            
-            dungeon._map = []
-            for row_idx, row in enumerate(dungeon_map):
-                row_tiles = []
-                for col_idx, col in enumerate(row):
-                    if col == '#':
-                        row_tiles.append(Tile('#', block_light=True, blocking=True))
-                    elif col == ' ':
-                        row_tiles.append(Tile())
-                    else:
-                        raise ValueError("Character '{0}' unrecognized at row {1} col {2}".format(col, row_idx, col_idx))
-                dungeon._map.append(row_tiles)
-        return dungeon
+        
+        return Dungeon(width, height, dungeon_map)
     
     def add_player(self, player):
         "Add the player in the dungeon"
@@ -85,18 +97,29 @@ class Dungeon(object):
         for line in self._map:
             yield line
     
+    def _within_bounds(self, x, y):
+        """Check if indices (x, y) are within the map bounds."""
+        return (0 <= x < self.width) and (0 <= y < self.height)
+    
     def __getitem__(self, key):
         "Access the Tile at position [x, y]"
         x, y = key
-        if not ((0 <= x < self.width) and (0 <= y < self.height)):
+        if not self._within_bounds(x, y):
             raise IndexError
         return self._map[y][x]
     
+    def __setitem__(self, key, tile):
+        "Set the Tile at position [x, y]"
+        x, y = key
+        if not self._within_bounds(x, y):
+            raise IndexError
+        if not isinstance(tile, Tile):
+            raise TypeError("Tried to assign an object of type {0}. Expecting type Tile". format(type(tile)))
+        self._map[y][x] = tile
+    
     def collide(self, x, y):
         "Check if the Tile at position (x, y) is blocking."
-        if self[x, y].blocking:
-            return True
-        return False
+        return self[x, y].blocking
     
     def reveal(self, cells):
         """
@@ -208,7 +231,7 @@ class Dungeon(object):
         points = get_circle(x, y, radius)
         for i, point in enumerate(points):
             x, y = point
-            if not ((0 <= x < self.width) and (0 <= y < self.height)):
+            if not self._within_bounds(x, y):
                 x, y = self._clamp_in_map(x, y)
                 points[i] = (x, y)
         return points
@@ -221,7 +244,7 @@ class Dungeon(object):
         
     def reveal_all(self):
         "Reveal the whole map"
-        for row in self._map:
+        for row in self:
             for tile in row:
                 tile.visible=True
         

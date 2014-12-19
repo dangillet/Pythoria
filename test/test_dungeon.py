@@ -24,6 +24,33 @@ class TestDungeon(unittest.TestCase):
     def setUp(self):
         self.test_map = dungeon.Dungeon.load_from_file('map.txt')
     
+    def test_init_empty(self):
+        test_map = dungeon.Dungeon(10, 12)
+        self.assertEqual(test_map.width, 10)
+        self.assertEqual(test_map.height, 12)
+        count = 0
+        for row in test_map:
+            for col in row:
+                self.assertEqual(col, dungeon.Tile())
+                count += 1
+        self.assertEqual(count, 10 * 12)
+    
+    def test_init_map(self):
+        the_map = ['######', '# # ##', '# # ##', '######']
+        test_map = dungeon.Dungeon(6, 4, the_map)
+        self.assertEqual(test_map.width, 6)
+        self.assertEqual(test_map.height, 4)
+        self.assertEqual(test_map[2, 1], WALL_HIDDEN)
+        self.assertEqual(test_map[3, 1], EMPTY_SPACE)
+        
+    def test_init_map_adjust_size(self):
+        the_map = ['######', '# # ##', '# # ##', '######']
+        test_map = dungeon.Dungeon(7, 5, the_map)
+        self.assertEqual(test_map.width, 7)
+        self.assertEqual(test_map.height, 5)
+        self.assertEqual(test_map[6, 0], EMPTY_SPACE)
+        self.assertEqual(test_map[0, 4], EMPTY_SPACE)
+    
     def test_load_from_file(self):
         self.assertEqual(self.test_map.width, 10)
         self.assertEqual(self.test_map.height, 8)
@@ -39,11 +66,23 @@ class TestDungeon(unittest.TestCase):
     def test_failed_loading(self):
         self.assertRaises(IOError, dungeon.Dungeon.load_from_file, 'inexistentmap.txt')
     
+    def test_within_bounds(self):
+        self.assertTrue(self.test_map._within_bounds(4, 6))
+        self.assertFalse(self.test_map._within_bounds(11, 6))
+        self.assertFalse(self.test_map._within_bounds(9, 10))
+    
     def test_getitem(self):
         self.assertEqual(self.test_map[0, 0], WALL_HIDDEN)
         self.assertEqual(self.test_map[1, 1], EMPTY_SPACE)
         self.assertEqual(self.test_map[6, 0], WALL_HIDDEN)
         self.assertRaises(IndexError, operator.getitem, self.test_map, (10, 0))
+    
+    def test_setitem(self):
+        new_tile = dungeon.Tile('#', True, False, True)
+        self.test_map[2, 3] = new_tile
+        self.assertIs(self.test_map[2, 3], new_tile)
+        self.assertRaises(TypeError, operator.setitem, self.test_map, (2, 3), object())
+        self.assertRaises(IndexError, operator.setitem, self.test_map, (10, 0), new_tile)
     
     def test_collide(self):
         self.assertTrue(self.test_map.collide(0, 0))
