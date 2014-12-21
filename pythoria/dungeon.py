@@ -26,7 +26,38 @@ class Tile(object):
         return not self == other
     
     def __repr__(self):
-        return '<Tile {0}{1}>'.format(self.value, ' visible' if self.visible else '')
+        return '<Tile {0}{1}>'.format(self.value, ' visible' if self.visible else ' not visible')
+
+class Door(Tile):
+    """
+    A Tile representing a door. It can be opened or closed.
+    """
+    def __init__(self, value='-', block_light=False, blocking=False, visible=False):
+        super(Door, self).__init__(value, block_light, blocking, visible)
+        if self.value == '-':
+            self.closed = True
+            self.block_light = True
+            self.blocking = True
+        else:
+            self.closed = False
+            self.block_light = False
+            self.blocking = False
+    
+    def open(self):
+        if not self.closed:
+            return
+        self.closed = False
+        self.blocking = False
+        self.block_light = False
+        self.value = '+'
+    
+    def close(self):
+        if self.closed:
+            return
+        self.closed = True
+        self.blocking = True
+        self.block_light = True
+        self.value = '-'
         
 class Dungeon(object):
     """
@@ -63,6 +94,10 @@ class Dungeon(object):
                     row_tiles.append(Tile('#', block_light=True, blocking=True))
                 elif col == ' ':
                     row_tiles.append(Tile())
+                elif col == '-':
+                    row_tiles.append(Door(value='-'))
+                elif col == '+':
+                    row_tiles.append(Door(value='+'))
                 else:
                     raise ValueError("Character '{0}' unrecognized at row {1} col {2}".format(col, row_idx, col_idx))
             self._map.append(row_tiles)
@@ -248,6 +283,8 @@ class Dungeon(object):
             for tile in row:
                 tile.visible=True
         
-
+    def get_neighbour_cells(self, x, y):
+        """Returns the cells adjacent to the position (x, y)"""
+        return [self[x + i, y] for i in (-1, 1)] +  [self[x, y + j] for j in (-1, 1)]
 
 

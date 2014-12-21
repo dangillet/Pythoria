@@ -18,6 +18,28 @@ class TestTile(unittest.TestCase):
         self.assertTrue(t1 == t2)
         self.assertFalse(t1 == t3)
         self.assertTrue(t1 != t3)
+
+class TestDoor(unittest.TestCase):
+    def setUp(self):
+        self.door = dungeon.Door('-')
+        
+    def test_init(self):
+        self.assertTrue(self.door.closed)
+        self.assertTrue(self.door.blocking)
+        self.assertTrue(self.door.block_light)
+    
+    def test_open(self):
+        self.door.open()
+        self.assertFalse(self.door.closed)
+        self.assertFalse(self.door.blocking)
+        self.assertFalse(self.door.block_light)
+    
+    def test_close(self):
+        self.door.open()
+        self.door.close()
+        self.assertTrue(self.door.closed)
+        self.assertTrue(self.door.blocking)
+        self.assertTrue(self.door.block_light)
         
 class TestDungeon(unittest.TestCase):
     
@@ -132,6 +154,14 @@ class TestDungeon(unittest.TestCase):
         x = width
         y = height
         self.assertEqual(self.test_map._clamp_in_map(x, y), (width - 1, height - 1))
+    
+    def test_get_neighbour_cells(self):
+        x, y = 1, 1
+        cells = [self.test_map[0, 1],
+                 self.test_map[2, 1],
+                 self.test_map[1, 0],
+                 self.test_map[1, 2]]
+        self.assertEqual(self.test_map.get_neighbour_cells(x, y), cells)
         
         
 if __name__ == '__main__':

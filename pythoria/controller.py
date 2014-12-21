@@ -5,6 +5,7 @@ from __future__ import print_function, unicode_literals, division
 import sys
 import pygcurse, pygame
 from pygame.locals import *
+import dungeon
 from dungeon import Dungeon
 from dungeonview import DungeonView
 from player import Player
@@ -29,6 +30,18 @@ class Controller(object):
             direction_y -= 1
         elif event.type == KEYDOWN and event.key == K_DOWN:
             direction_y += 1
+        elif event.type == KEYDOWN and event.key == K_o:
+            neighbour_cells = self.dungeon.get_neighbour_cells(*self.player.pos)
+            for cell in neighbour_cells:
+                if isinstance(cell, dungeon.Door):
+                    cell.open()
+                    break
+        elif event.type == KEYDOWN and event.key == K_c:
+            neighbour_cells = self.dungeon.get_neighbour_cells(*self.player.pos)
+            for cell in neighbour_cells:
+                if isinstance(cell, dungeon.Door):
+                    cell.close()
+                    break
 
         if direction_x or direction_y:
             old_x, old_y = self.player.x, self.player.y
