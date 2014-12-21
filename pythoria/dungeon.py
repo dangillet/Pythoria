@@ -3,61 +3,8 @@
 from __future__ import print_function, unicode_literals, division
 import itertools, codecs
 from library import get_line, get_circle
+from tile import *
 
-class Tile(object):
-    """
-    The tile contains all the information regarding its visibility, if
-    it blocks line of sight, ...
-    """
-    
-    def __init__(self, value=' ', block_light=False, blocking=False, visible=False):
-        self.value = value
-        self.block_light = block_light
-        self.blocking = blocking
-        self.visible = visible
-    
-    def __eq__(self, other):
-        return self.value == other.value and \
-               self.block_light == other.block_light and \
-               self.blocking == other.blocking and \
-               self.visible == other.visible
-        
-    def __ne__(self, other):
-        return not self == other
-    
-    def __repr__(self):
-        return '<Tile {0}{1}>'.format(self.value, ' visible' if self.visible else ' not visible')
-
-class Door(Tile):
-    """
-    A Tile representing a door. It can be opened or closed.
-    """
-    def __init__(self, value='-', block_light=False, blocking=False, visible=False):
-        super(Door, self).__init__(value, block_light, blocking, visible)
-        if self.value == '-':
-            self.closed = True
-            self.block_light = True
-            self.blocking = True
-        else:
-            self.closed = False
-            self.block_light = False
-            self.blocking = False
-    
-    def open(self):
-        if not self.closed:
-            return
-        self.closed = False
-        self.blocking = False
-        self.block_light = False
-        self.value = '+'
-    
-    def close(self):
-        if self.closed:
-            return
-        self.closed = True
-        self.blocking = True
-        self.block_light = True
-        self.value = '-'
         
 class Dungeon(object):
     """
@@ -94,10 +41,10 @@ class Dungeon(object):
                     row_tiles.append(Tile('#', block_light=True, blocking=True))
                 elif col == ' ':
                     row_tiles.append(Tile())
-                elif col == '-':
-                    row_tiles.append(Door(value='-'))
                 elif col == '+':
-                    row_tiles.append(Door(value='+'))
+                    row_tiles.append(Door('+'))
+                elif col == "'":
+                    row_tiles.append(Door("'"))
                 else:
                     raise ValueError("Character '{0}' unrecognized at row {1} col {2}".format(col, row_idx, col_idx))
             self._map.append(row_tiles)

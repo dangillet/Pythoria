@@ -4,40 +4,39 @@ from __future__ import print_function, unicode_literals, division
 
 import unittest
 import operator
-from pythoria import dungeon
+from pythoria import dungeon, tile
 
-EMPTY_SPACE = dungeon.Tile()
-WALL = dungeon.Tile('#', True, True, True)
-WALL_HIDDEN = dungeon.Tile('#', True, True)
+EMPTY_SPACE = tile.Tile()
+WALL = tile.Tile('#', True, True, True)
+WALL_HIDDEN = tile.Tile('#', True, True)
 
 class TestTile(unittest.TestCase):
     def test_eq(self):
-        t1 = dungeon.Tile('#', True, True, True)
-        t2 = dungeon.Tile('#', True, True, True)
-        t3 = dungeon.Tile('#', True, True, False)
+        t1 = tile.Tile('#', True, True, True)
+        t2 = tile.Tile('#', True, True, True)
+        t3 = tile.Tile('#', True, True, False)
         self.assertTrue(t1 == t2)
         self.assertFalse(t1 == t3)
         self.assertTrue(t1 != t3)
 
 class TestDoor(unittest.TestCase):
     def setUp(self):
-        self.door = dungeon.Door('-')
+        self.door = tile.Door('+')
         
     def test_init(self):
-        self.assertTrue(self.door.closed)
         self.assertTrue(self.door.blocking)
         self.assertTrue(self.door.block_light)
+        self.assertEqual(self.door.value, '+')
     
     def test_open(self):
-        self.door.open()
-        self.assertFalse(self.door.closed)
+        self.assertTrue(self.door.open())
         self.assertFalse(self.door.blocking)
         self.assertFalse(self.door.block_light)
-    
+
     def test_close(self):
+        self.assertFalse(self.door.close())
         self.door.open()
-        self.door.close()
-        self.assertTrue(self.door.closed)
+        self.assertTrue(self.door.close())
         self.assertTrue(self.door.blocking)
         self.assertTrue(self.door.block_light)
         
@@ -100,7 +99,7 @@ class TestDungeon(unittest.TestCase):
         self.assertRaises(IndexError, operator.getitem, self.test_map, (10, 0))
     
     def test_setitem(self):
-        new_tile = dungeon.Tile('#', True, False, True)
+        new_tile = tile.Tile('#', True, False, True)
         self.test_map[2, 3] = new_tile
         self.assertIs(self.test_map[2, 3], new_tile)
         self.assertRaises(TypeError, operator.setitem, self.test_map, (2, 3), object())

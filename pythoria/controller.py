@@ -33,14 +33,19 @@ class Controller(object):
         elif event.type == KEYDOWN and event.key == K_o:
             neighbour_cells = self.dungeon.get_neighbour_cells(*self.player.pos)
             for cell in neighbour_cells:
-                if isinstance(cell, dungeon.Door):
-                    cell.open()
+                if cell.open():
+                    self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
+                                                               self.player.y,
+                                                               5)
+                    self.dungeon.reveal(self.player.fov)
                     break
         elif event.type == KEYDOWN and event.key == K_c:
             neighbour_cells = self.dungeon.get_neighbour_cells(*self.player.pos)
             for cell in neighbour_cells:
-                if isinstance(cell, dungeon.Door):
-                    cell.close()
+                if cell.close():
+                    self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
+                                                               self.player.y,
+                                                               5)
                     break
 
         if direction_x or direction_y:
