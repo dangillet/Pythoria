@@ -27,7 +27,7 @@ class DungeonView(object):
         if self.dungeon.player:
             for light_x, light_y in self.dungeon.player.fov:
                 if not self.dungeon[light_x, light_y].block_light:
-                    self.win.settint(100, 100, 0, (light_x, light_y, 1, 1))
+                    self.win.settint(30, 30, 0, (light_x, light_y, 1, 1))
             self.win.putchar(PLAYER, x=self.dungeon.player.x, y=self.dungeon.player.y)
 
 
