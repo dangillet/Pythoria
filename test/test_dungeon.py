@@ -161,6 +161,16 @@ class TestDungeon(unittest.TestCase):
                  self.test_map[1, 0],
                  self.test_map[1, 2]]
         self.assertEqual(self.test_map.get_neighbour_cells(x, y), cells)
+    
+    def test_add_player(self):
+        class MockPlayer(object):
+            pass
+        mock_player = MockPlayer()
+        mock_player.x = 1
+        mock_player.y = 1
+        self.test_map.add_player(mock_player)
+        self.assertIs(self.test_map.player, mock_player)
+        self.assertEqual(self.test_map.player.fov, self.test_map.get_field_of_vision(1, 1, 5))
         
         
 if __name__ == '__main__':

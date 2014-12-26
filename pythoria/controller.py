@@ -11,77 +11,77 @@ from dungeonview import DungeonView
 from player import Player
 from tile import Tile
 
+class DirectionForCommand(object):
+    def __init__(self, controller, command):
+        self.controller = controller
+        self.dungeon = self.controller.dungeon
+        self.player = self.dungeon.player
+        self.command = command
+    
+    def process_event(self, event):
+        "Process the events from the event loop"
+
+        if event.type == KEYDOWN and event.key == K_ESCAPE:
+            self.controller.event_handler.pop()
+            
+        elif event.type == KEYDOWN and event.key == K_RIGHT:
+            self._execute_command(1, 0)
+        elif event.type == KEYDOWN and event.key == K_LEFT:
+            self._execute_command(-1, 0)
+        elif event.type == KEYDOWN and event.key == K_UP:
+            self._execute_command(0, -1)
+        elif event.type == KEYDOWN and event.key == K_DOWN:
+            self._execute_command(0, 1)
+    
+    def _execute_command(self, dir_x, dir_y):
+        """Execute the registered command in the given direction"""
+        cell = self.dungeon[self.player.x + dir_x, self.player.y + dir_y]
+        command = getattr(cell, self.command)
+        command()
+        self.dungeon.player.fov = self.dungeon.get_field_of_vision(self.player.x,
+                                                                   self.player.y,
+                                                                   5)
+        self.dungeon.reveal(self.player.fov)
+        self.controller.event_handler.pop()
+
+class GameEventHandler(object):
+    def __init__(self, controller):
+        self.controller = controller
+        self.dungeon = self.controller.dungeon
+    
+    def process_event(self, event):
+        "Process the events from the event loop"
+
+        if event.type == KEYDOWN and event.key == K_RIGHT:
+            self.dungeon.move_player(1, 0)
+        elif event.type == KEYDOWN and event.key == K_LEFT:
+            self.dungeon.move_player(-1, 0)
+        elif event.type == KEYDOWN and event.key == K_UP:
+            self.dungeon.move_player(0, -1)
+        elif event.type == KEYDOWN and event.key == K_DOWN:
+            self.dungeon.move_player(0, 1)
+        elif event.type == KEYDOWN and event.key == K_o:
+            self.controller.event_handler.append(DirectionForCommand(self.controller, "open"))
+        elif event.type == KEYDOWN and event.key == K_c:
+            self.controller.event_handler.append(DirectionForCommand(self.controller, "close"))
+
 class Controller(object):
     def __init__(self, dungeon, view):
         self.dungeon = dungeon
         self.player = self.dungeon.player
         self.view = view
-        self.command = None
+        self.event_handler = [GameEventHandler(self)]
         
     def process_event(self, event):
         "Process the events from the event loop"
         
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+        if event.type == QUIT:
             global running
             running = False
         
-        if self.command is not None:
-            self.direction_for_command(event)
-            return
-            
-        direction_x, direction_y = 0, 0
-        if event.type == KEYDOWN and event.key == K_RIGHT:
-            direction_x += 1
-        elif event.type == KEYDOWN and event.key == K_LEFT:
-            direction_x -= 1
-        elif event.type == KEYDOWN and event.key == K_UP:
-            direction_y -= 1
-        elif event.type == KEYDOWN and event.key == K_DOWN:
-            direction_y += 1
-            
-        elif event.type == KEYDOWN and event.key == K_o:
-            self.command = "open"
-        elif event.type == KEYDOWN and event.key == K_c:
-            self.command = "close"
-
-        if direction_x or direction_y:
-            old_x, old_y = self.player.x, self.player.y
-            self.player.x += direction_x
-            self.player.y += direction_y
-            if self.dungeon.collide(*self.player.pos):
-                self.player.x, self.player.y = old_x, old_y
-            else:
-                self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
-                                                               self.player.y,
-                                                               5)
-            self.dungeon.reveal(self.player.fov)
+        self.event_handler[-1].process_event(event)
     
-    def direction_for_command(self, event):
-        """Get a direction from the keyboard to execute a given command in a neighbour cell."""
-        if event.type == KEYDOWN and event.key == K_RIGHT:
-            cell = self.dungeon[self.player.x + 1, self.player.y]
-            self._execute_command(cell)
-        elif event.type == KEYDOWN and event.key == K_LEFT:
-            cell = self.dungeon[self.player.x - 1, self.player.y]
-            self._execute_command(cell)
-        elif event.type == KEYDOWN and event.key == K_UP:
-            cell = self.dungeon[self.player.x, self.player.y - 1]
-            self._execute_command(cell)
-        elif event.type == KEYDOWN and event.key == K_DOWN:
-            cell = self.dungeon[self.player.x, self.player.y + 1]
-            self._execute_command(cell)
-        
-        
     
-    def _execute_command(self, cell):
-        """Execute the registered command in the given cell"""
-        command = getattr(cell, self.command)
-        command()
-        self.command = None
-        self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
-                                                           self.player.y,
-                                                           5)
-        self.dungeon.reveal(self.player.fov)
         
 if __name__ == '__main__':
     win = pygcurse.PygcurseWindow(40, 20)

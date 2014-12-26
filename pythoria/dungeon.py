@@ -74,6 +74,19 @@ class Dungeon(object):
         self.player.fov = self.get_field_of_vision(player.x, player.y, 5)
         self.reveal(self.player.fov)
     
+    def move_player(self, dir_x, dir_y):
+        """Move the player in the given direction"""
+        old_x, old_y = self.player.x, self.player.y
+        self.player.x += dir_x
+        self.player.y += dir_y
+        if self.collide(*self.player.pos):
+            self.player.x, self.player.y = old_x, old_y
+        else:
+            self.player.fov = self.get_field_of_vision(self.player.x,
+                                                       self.player.y,
+                                                       5)
+            self.reveal(self.player.fov)
+    
     def __iter__(self):
         "Iterate over the rows of the dungeon"
         for line in self._map:
