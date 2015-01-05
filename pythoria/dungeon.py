@@ -1,12 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, division
-import itertools, codecs
-from library import get_line, get_circle
-from tile import *
+
+import itertools
+from pythoria.library import get_line, get_circle
+from pythoria.tile import *
 
         
-class Dungeon(object):
+class Dungeon():
     """
     The Dungeon object contains all the information regarding the dungeon
     """
@@ -60,13 +60,13 @@ class Dungeon(object):
         to fulfill width and height criteria.
         Wall: #
         """
-        with codecs.open(filename, 'r', encoding='utf-8') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             size = f.readline()
             width, height = map(int, size.strip().split(' '))
             dungeon_map = f.readlines()
             dungeon_map = list(map(lambda s: s.strip('\r\n'), dungeon_map))
         
-        return Dungeon(width, height, dungeon_map)
+        return cls(width, height, dungeon_map)
     
     def add_player(self, player):
         "Add the player in the dungeon"

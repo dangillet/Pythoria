@@ -1,17 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, division
 
 import sys
 import pygcurse, pygame
 from pygame.locals import *
-import dungeon
-from dungeon import Dungeon
-from dungeonview import DungeonView
-from player import Player
-from tile import Tile
 
-class DirectionForCommand(object):
+from pythoria.dungeon import Dungeon
+from pythoria.dungeonview import DungeonView
+from pythoria.player import Player
+from pythoria.tile import Tile
+
+class DirectionForCommand():
     def __init__(self, controller, command):
         self.controller = controller
         self.dungeon = self.controller.dungeon
@@ -44,7 +43,7 @@ class DirectionForCommand(object):
         self.dungeon.reveal(self.player.fov)
         self.controller.event_handler.pop()
 
-class GameEventHandler(object):
+class GameEventHandler():
     def __init__(self, controller):
         self.controller = controller
         self.dungeon = self.controller.dungeon
@@ -65,7 +64,7 @@ class GameEventHandler(object):
         elif event.type == KEYDOWN and event.key == K_c:
             self.controller.event_handler.append(DirectionForCommand(self.controller, "close"))
 
-class Controller(object):
+class Controller():
     def __init__(self, dungeon, view):
         self.dungeon = dungeon
         self.player = self.dungeon.player

@@ -1,6 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, division
 
 def get_line(x1, y1, x2, y2):
     points = []

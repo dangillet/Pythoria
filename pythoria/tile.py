@@ -1,10 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, division
 
 __all__ = ['Tile', 'Door']
 
-class Tile(object):
+class Tile():
     """
     The tile contains all the information regarding its visibility, if
     it blocks line of sight, ...

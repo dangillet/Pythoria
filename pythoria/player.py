@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, division
 
-class Player(object):
+class Player():
     def __init__(self, x, y):
         self.x = x
         self.y = y

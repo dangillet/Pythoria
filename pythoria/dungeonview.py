@@ -1,13 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals, division
 
 import pygcurse, pygame
-from dungeon import Dungeon
+from pythoria.dungeon import Dungeon
 
 PLAYER = '\N{WHITE SMILING FACE}' # Unicode for a smile
 
-class DungeonView(object):
+class DungeonView():
     
     def __init__(self, dungeon, win):
         self.dungeon = dungeon
