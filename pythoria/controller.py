@@ -34,12 +34,11 @@ class DirectionForCommand():
     
     def _execute_command(self, dir_x, dir_y):
         """Execute the registered command in the given direction"""
-        cell = self.dungeon[self.player.x + dir_x, self.player.y + dir_y]
-        command = getattr(cell, self.command)
-        command()
-        self.dungeon.player.fov = self.dungeon.get_field_of_vision(self.player.x,
-                                                                   self.player.y,
-                                                                   5)
+        command = getattr(self.dungeon, self.command)
+        command(self.player.x + dir_x, self.player.y + dir_y)
+        self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
+                                                           self.player.y,
+                                                           5)
         self.dungeon.reveal(self.player.fov)
         self.controller.event_handler.pop()
 
@@ -60,9 +59,9 @@ class GameEventHandler():
         elif event.type == KEYDOWN and event.key == K_DOWN:
             self.dungeon.move_player(0, 1)
         elif event.type == KEYDOWN and event.key == K_o:
-            self.controller.event_handler.append(DirectionForCommand(self.controller, "open"))
+            self.controller.event_handler.append(DirectionForCommand(self.controller, "open_door"))
         elif event.type == KEYDOWN and event.key == K_c:
-            self.controller.event_handler.append(DirectionForCommand(self.controller, "close"))
+            self.controller.event_handler.append(DirectionForCommand(self.controller, "close_door"))
 
 class Controller():
     def __init__(self, dungeon, view):
@@ -79,8 +78,6 @@ class Controller():
             running = False
         
         self.event_handler[-1].process_event(event)
-    
-    
         
 if __name__ == '__main__':
     win = pygcurse.PygcurseWindow(40, 20)

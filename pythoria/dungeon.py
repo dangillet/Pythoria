@@ -246,5 +246,21 @@ class Dungeon():
     def get_neighbour_cells(self, x, y):
         """Returns the cells adjacent to the position (x, y)"""
         return [self[x + i, y] for i in (-1, 1)] +  [self[x, y + j] for j in (-1, 1)]
+    
+    def open_door(self, x, y):
+        """
+        Open a Door Tile at position x, y
+        Return True if this operation is succefull. False otherwise.
+        """
+        cell = self[x, y]
+        return cell.open()
+    
+    def close_door(self, x, y):
+        """
+        Close a Door Tile at position x, y
+        Return True if this operation is succefull. False otherwise.
+        """
+        cell = self[x, y]
+        return cell.close()
 
 

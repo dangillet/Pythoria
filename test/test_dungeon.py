@@ -162,7 +162,7 @@ class TestDungeon(unittest.TestCase):
         self.assertEqual(self.test_map.get_neighbour_cells(x, y), cells)
     
     def test_add_player(self):
-        class MockPlayer(object):
+        class MockPlayer():
             pass
         mock_player = MockPlayer()
         mock_player.x = 1
@@ -170,7 +170,33 @@ class TestDungeon(unittest.TestCase):
         self.test_map.add_player(mock_player)
         self.assertIs(self.test_map.player, mock_player)
         self.assertEqual(self.test_map.player.fov, self.test_map.get_field_of_vision(1, 1, 5))
+    
+    def test_open_door(self):
+        self.assertFalse(self.test_map.open_door(5, 4))
         
+        door = self.test_map[6, 4]
+        self.assertTrue(door.blocking)
+        self.assertTrue(door.block_light)
+        
+        self.assertTrue(self.test_map.open_door(6, 4))
+        self.assertFalse(self.test_map.open_door(6, 4))
+
+        self.assertFalse(door.blocking)
+        self.assertFalse(door.block_light)
+        
+    def test_close_door(self):
+        self.assertFalse(self.test_map.open_door(5, 4))
+        
+        door = self.test_map[6, 4]
+        door.open()
+        self.assertFalse(door.blocking)
+        self.assertFalse(door.block_light)
+        
+        self.assertTrue(self.test_map.close_door(6, 4))
+        self.assertFalse(self.test_map.close_door(6, 4))
+
+        self.assertTrue(door.blocking)
+        self.assertTrue(door.block_light)
         
 if __name__ == '__main__':
     unittest.main()
