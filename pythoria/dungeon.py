@@ -4,13 +4,16 @@
 import itertools
 from pythoria.library import get_line, get_circle
 from pythoria.tile import *
+from pythoria.events import EventDispatcher
+from pythoria.event_types import *
 
         
-class Dungeon():
+class Dungeon(EventDispatcher):
     """
     The Dungeon object contains all the information regarding the dungeon
     """
     def __init__(self, width=None, height=None, dungeon_map=None):
+        super().__init__()
         self.width = width
         self.height = height
         self._map = None
@@ -253,7 +256,10 @@ class Dungeon():
         Return True if this operation is succefull. False otherwise.
         """
         cell = self[x, y]
-        return cell.open()
+        if cell.open():
+            self.post(DoorOpen())
+            return True
+        return False
     
     def close_door(self, x, y):
         """
@@ -261,6 +267,9 @@ class Dungeon():
         Return True if this operation is succefull. False otherwise.
         """
         cell = self[x, y]
-        return cell.close()
+        if cell.close():
+            self.post(DoorClose())
+            return True
+        return False
 
 

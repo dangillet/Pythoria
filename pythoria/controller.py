@@ -9,6 +9,7 @@ from pythoria.dungeon import Dungeon
 from pythoria.dungeonview import DungeonView
 from pythoria.player import Player
 from pythoria.tile import Tile
+from pythoria.event_types import *
 
 class DirectionForCommand():
     def __init__(self, controller, command):
@@ -36,10 +37,7 @@ class DirectionForCommand():
         """Execute the registered command in the given direction"""
         command = getattr(self.dungeon, self.command)
         command(self.player.x + dir_x, self.player.y + dir_y)
-        self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
-                                                           self.player.y,
-                                                           5)
-        self.dungeon.reveal(self.player.fov)
+
         self.controller.event_handler.pop()
 
 class GameEventHandler():
@@ -66,6 +64,8 @@ class GameEventHandler():
 class Controller():
     def __init__(self, dungeon, view):
         self.dungeon = dungeon
+        self._connections = [dungeon.add(DoorClose, self.on_door_moves),
+                             dungeon.add(DoorOpen, self.on_door_moves)]
         self.player = self.dungeon.player
         self.view = view
         self.event_handler = [GameEventHandler(self)]
@@ -78,6 +78,12 @@ class Controller():
             running = False
         
         self.event_handler[-1].process_event(event)
+    
+    def on_door_moves(self, event):
+        self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
+                                                           self.player.y,
+                                                           5)
+        self.dungeon.reveal(self.player.fov)
         
 if __name__ == '__main__':
     win = pygcurse.PygcurseWindow(40, 20)
