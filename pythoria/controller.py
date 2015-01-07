@@ -9,7 +9,6 @@ from pythoria.dungeon import Dungeon
 from pythoria.dungeonview import DungeonView
 from pythoria.player import Player
 from pythoria.tile import Tile
-from pythoria.event_types import *
 
 class DirectionForCommand():
     def __init__(self, controller, command):
@@ -41,6 +40,9 @@ class DirectionForCommand():
         self.controller.event_handler.pop()
 
 class GameEventHandler():
+    """
+    Normal Game event handler. Maps key press with commands given to the Dungeon.
+    """
     def __init__(self, controller):
         self.controller = controller
         self.dungeon = self.controller.dungeon
@@ -62,30 +64,37 @@ class GameEventHandler():
             self.controller.event_handler.append(DirectionForCommand(self.controller, "close_door"))
 
 class Controller():
+    """
+    Game Controller.
+    Its purpose is to make the Dungeon Model and the Dungeon View interact 
+    together correctly.
+    It responds to pygame events for user inputs (key presses). It delegates
+    this task to an Event Handler. A stack of Event Handler can be created. 
+    Only the top one (last in the list) will process the events.
+    """
     def __init__(self, dungeon, view):
         self.dungeon = dungeon
-        self._connections = [dungeon.add(DoorClose, self.on_door_moves),
-                             dungeon.add(DoorOpen, self.on_door_moves)]
+        self._connections = [dungeon.bind("Door Close", self.on_door_moves),
+                             dungeon.bind("Door Open", self.on_door_moves)]
         self.player = self.dungeon.player
         self.view = view
         self.event_handler = [GameEventHandler(self)]
         
     def process_event(self, event):
-        "Process the events from the event loop"
-        
-        if event.type == QUIT:
-            global running
-            running = False
+        """Process the events from the pygame events loop"""
         
         self.event_handler[-1].process_event(event)
     
-    def on_door_moves(self, event):
+    def on_door_moves(self):
         self.player.fov = self.dungeon.get_field_of_vision(self.player.x,
                                                            self.player.y,
                                                            5)
         self.dungeon.reveal(self.player.fov)
         
 if __name__ == '__main__':
+    """
+    Quick game setup for testing purposes.
+    """
     win = pygcurse.PygcurseWindow(40, 20)
     level1 = Dungeon.load_from_file('map/map.txt')
     level1.add_player(Player(1, 1))
@@ -97,7 +106,10 @@ if __name__ == '__main__':
     
     while running:
         for event in pygame.event.get():
-            controller.process_event(event)
+            if event.type == QUIT:
+                running = False
+            else:
+                controller.process_event(event)
         
         win.setscreencolors()
         win.cursor = (0,0)

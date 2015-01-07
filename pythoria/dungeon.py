@@ -5,7 +5,6 @@ import itertools
 from pythoria.library import get_line, get_circle
 from pythoria.tile import *
 from pythoria.events import EventDispatcher
-from pythoria.event_types import *
 
         
 class Dungeon(EventDispatcher):
@@ -257,7 +256,7 @@ class Dungeon(EventDispatcher):
         """
         cell = self[x, y]
         if cell.open():
-            self.post(DoorOpen())
+            self.post("Door Open")
             return True
         return False
     
@@ -268,7 +267,7 @@ class Dungeon(EventDispatcher):
         """
         cell = self[x, y]
         if cell.close():
-            self.post(DoorClose())
+            self.post("Door Close")
             return True
         return False
 
