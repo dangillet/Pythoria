@@ -10,4 +10,5 @@ class GameView:
 
     def draw(self):
         for view, coords in self.views.items():
-            view.draw(*coords)
+            view.draw()
+            view.blitto(self.win.surface, dest=coords)

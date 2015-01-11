@@ -1,12 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-class HUDView:
-    def __init__(self, player, win):
-        self.player = player
-        self.win = win
+import pygcurse, pygame
+pygame.font.init()
 
-    def draw(self, x, y):
-        self.win.putchars("Player", x=x, y=y, indent=True)
-        self.win.putchars("x={}".format(self.player.x), x=x+2, y=y+1, indent=True)
-        self.win.putchars("y={}".format(self.player.y), x=x+2, y=y+2, indent=True)
+
+class HUDView(pygcurse.PygcurseSurface):
+    font = pygame.font.Font(pygame.font.match_font('consolas'), 18)
+
+    def __init__(self, player):
+        self.player = player
+        super(HUDView, self).__init__(30, 30, HUDView.font)
+        self.autoupdate = False
+
+    def draw(self):
+        self.setscreencolors()
+        self.cursor = (0, 0)
+        self.putchars("Player")
+        self.putchars("x={}".format(self.player.x), x=2, y=1)
+        self.putchars("y={}".format(self.player.y), x=2, y=2)
+        self.update()

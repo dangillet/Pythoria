@@ -7,6 +7,7 @@ from pygame.locals import *
 
 from pythoria.hudview import HUDView
 from pythoria.messageboxview import MessageBoxView
+from pythoria.messagebox import MessageBox
 from pythoria.gameview import GameView
 from pythoria.dungeon import Dungeon
 from pythoria.dungeonview import DungeonView
@@ -102,19 +103,19 @@ if __name__ == '__main__':
     """
     Quick game setup for testing purposes.
     """
-    win = pygcurse.PygcurseWindow(60, 30)
+    win = pygcurse.PygcurseWindow(80, 30)
     win.font = pygame.font.Font(pygame.font.match_font('consolas'), 18)
     level1 = Dungeon.load_from_file('map/map.txt')
     player = Player(1, 1)
     level1.add_player(player)
-    msgbox = []
+    msgbox = MessageBox()
 
     view = GameView(
         win,
         {
-            DungeonView(level1, win):    (0,  0),
-            HUDView(player, win):        (20, 0),
-            MessageBoxView(msgbox, win): (0, 17)
+            DungeonView(level1):    (0,   0),
+            HUDView(player):        (300, 0),
+            MessageBoxView(msgbox): (0, 300)
         }
     )
 
@@ -129,9 +130,7 @@ if __name__ == '__main__':
                 running = False
             else:
                 controller.process_event(event)
-        
-        win.setscreencolors()
-        win.cursor = (0, 0)
+
         controller.view.draw()
         win.update()
         mainClock.tick(30)
