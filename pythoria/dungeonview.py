@@ -13,9 +13,9 @@ class DungeonView():
         self.win = win
         self.win.font = pygame.font.Font('C:\Windows\Fonts\Consola.ttf', 22)
         
-    def draw(self):
+    def draw(self, x, y):
         "Draw the dungeon and the player."
-        
+        self.win.cursor = (x, y)
         for line in self.dungeon:
             for tile in line:
                 if tile.visible:
@@ -36,5 +36,5 @@ if __name__ == '__main__':
     level1 = Dungeon.load_from_file('../test/map.txt')
     level1.add_player(player.Player(1, 1))
     view = DungeonView(level1, win)
-    view.draw()
+    view.draw(0, 0)
     pygcurse.waitforkeypress()

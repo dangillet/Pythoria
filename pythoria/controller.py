@@ -5,6 +5,9 @@ import sys
 import pygcurse, pygame
 from pygame.locals import *
 
+from pythoria.hudview import HUDView
+from pythoria.messageboxview import MessageBoxView
+from pythoria.gameview import GameView
 from pythoria.dungeon import Dungeon
 from pythoria.dungeonview import DungeonView
 from pythoria.player import Player
@@ -97,8 +100,17 @@ if __name__ == '__main__':
     """
     win = pygcurse.PygcurseWindow(40, 20)
     level1 = Dungeon.load_from_file('map/map.txt')
-    level1.add_player(Player(1, 1))
-    view = DungeonView(level1, win)
+    player = Player(1, 1)
+    level1.add_player(player)
+
+    view = GameView(
+        win,
+        {
+            DungeonView(level1, win): (0,  0),
+            HUDView(player, win):     (20, 0)
+        }
+    )
+
     controller = Controller(level1, view)
     win.autoupdate = False
     mainClock = pygame.time.Clock()
@@ -112,8 +124,8 @@ if __name__ == '__main__':
                 controller.process_event(event)
         
         win.setscreencolors()
-        win.cursor = (0,0)
-        view.draw()
+        win.cursor = (0, 0)
+        controller.view.draw()
         win.update()
         mainClock.tick(30)
 

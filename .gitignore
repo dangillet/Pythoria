@@ -3,3 +3,5 @@
 *.proj
 PYTHORIA_Dev_Manual_3.pdf
 pythoria_old
+.idea
+launch.bat
