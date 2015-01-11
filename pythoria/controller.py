@@ -63,8 +63,11 @@ class GameEventHandler():
             self.dungeon.move_player(0, 1)
         elif event.type == KEYDOWN and event.key == K_o:
             self.controller.event_handler.append(DirectionForCommand(self.controller, "open_door"))
+            self.controller.msgbox.append("Donnez la direction de la porte à ouvrir. [ESC] pour annuler.")
         elif event.type == KEYDOWN and event.key == K_c:
             self.controller.event_handler.append(DirectionForCommand(self.controller, "close_door"))
+            self.controller.msgbox.append("Donnez la direction de la porte à fermer. [ESC] pour annuler.")
+
 
 class Controller():
     """
@@ -75,11 +78,12 @@ class Controller():
     this task to an Event Handler. A stack of Event Handler can be created. 
     Only the top one (last in the list) will process the events.
     """
-    def __init__(self, dungeon, view):
+    def __init__(self, dungeon, msgbox, view):
         self.dungeon = dungeon
         self._connections = [dungeon.bind("Door Close", self.on_door_moves),
                              dungeon.bind("Door Open", self.on_door_moves)]
         self.player = self.dungeon.player
+        self.msgbox = msgbox
         self.view = view
         self.event_handler = [GameEventHandler(self)]
         
@@ -98,20 +102,23 @@ if __name__ == '__main__':
     """
     Quick game setup for testing purposes.
     """
-    win = pygcurse.PygcurseWindow(40, 20)
+    win = pygcurse.PygcurseWindow(60, 30)
+    win.font = pygame.font.Font(pygame.font.match_font('consolas'), 18)
     level1 = Dungeon.load_from_file('map/map.txt')
     player = Player(1, 1)
     level1.add_player(player)
+    msgbox = []
 
     view = GameView(
         win,
         {
-            DungeonView(level1, win): (0,  0),
-            HUDView(player, win):     (20, 0)
+            DungeonView(level1, win):    (0,  0),
+            HUDView(player, win):        (20, 0),
+            MessageBoxView(msgbox, win): (0, 17)
         }
     )
 
-    controller = Controller(level1, view)
+    controller = Controller(level1, msgbox,  view)
     win.autoupdate = False
     mainClock = pygame.time.Clock()
     running = True

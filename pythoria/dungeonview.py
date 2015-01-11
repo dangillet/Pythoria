@@ -11,7 +11,6 @@ class DungeonView():
     def __init__(self, dungeon, win):
         self.dungeon = dungeon
         self.win = win
-        self.win.font = pygame.font.Font('C:\Windows\Fonts\Consola.ttf', 22)
         
     def draw(self, x, y):
         "Draw the dungeon and the player."
