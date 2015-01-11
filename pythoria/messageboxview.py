@@ -3,17 +3,21 @@
 
 import pygcurse, pygame
 
+pygame.font.init()
+
 class MessageBoxView(pygcurse.PygcurseSurface):
     font = pygame.font.Font(pygame.font.match_font('consolas'), 14)
     
     def __init__(self, msgbox):
-        super(MessageBoxView, self).__init__(80, 5, MessageBoxView.font)
+        super(MessageBoxView, self).__init__(40, 6, MessageBoxView.font)
         self.autoupdate = False
         self.msgbox = msgbox
 
     def draw(self):
         self.setscreencolors()
         self.cursor = (0, 0)
-        for msg in self.msgbox[-self.msgbox.height:]:
-            self.write(msg + '\n')
+        for msg in self.msgbox[:-1]:
+            self.write(msg + '\n', fgcolor=(64, 64, 64))
+        if self.msgbox:
+            self.write(self.msgbox[-1])
         self.update()

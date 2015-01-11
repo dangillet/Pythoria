@@ -4,7 +4,10 @@
 import pygcurse, pygame
 from pythoria.dungeon import Dungeon
 
+pygame.font.init()
+
 PLAYER = '\N{WHITE SMILING FACE}' # Unicode for a smile
+
 
 class DungeonView(pygcurse.PygcurseSurface):
     font = pygame.font.Font(pygame.font.match_font('consolas'), 18)
@@ -42,4 +45,6 @@ if __name__ == '__main__':
     view = DungeonView(level1)
     view.draw()
     view.blitto(win.surface)
+    win.blittowindow()
+    
     pygcurse.waitforkeypress()

@@ -132,7 +132,7 @@ if __name__ == '__main__':
                 controller.process_event(event)
 
         controller.view.draw()
-        win.update()
+        win.blittowindow()
         mainClock.tick(30)
 
     pygame.quit()

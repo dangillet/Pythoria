@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import pygcurse, pygame
-pygame.font.init()
 
+pygame.font.init()
 
 class HUDView(pygcurse.PygcurseSurface):
     font = pygame.font.Font(pygame.font.match_font('consolas'), 18)
