@@ -7,8 +7,7 @@ from pythoria import events
 
 class TestWeakBoundMEthod(unittest.TestCase):
     def setUp(self):
-
-        self.bm = Mock('bound method')
+        self.bm = Mock(name='bound method')
         self.bm.__self__ = Mock(name='self')
         self.bm.__func__ = Mock(name='func')
     
