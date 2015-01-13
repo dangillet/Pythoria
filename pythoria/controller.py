@@ -38,8 +38,8 @@ class DirectionForCommand():
     
     def _execute_command(self, dir_x, dir_y):
         """Execute the registered command in the given direction"""
-        command = getattr(self.dungeon, self.command)
-        command(self.player.x + dir_x, self.player.y + dir_y)
+        if not self.command(self.player.x + dir_x, self.player.y + dir_y):
+            self.controller.msgbox.append("Vous ne pouvez pas faire cette action dans cette direction.")
 
         self.controller.event_handler.pop()
 
@@ -63,10 +63,10 @@ class GameEventHandler():
         elif event.type == KEYDOWN and event.key == K_DOWN:
             self.dungeon.move_player(0, 1)
         elif event.type == KEYDOWN and event.key == K_o:
-            self.controller.event_handler.append(DirectionForCommand(self.controller, "open_door"))
+            self.controller.event_handler.append(DirectionForCommand(self.controller, self.dungeon.open_door))
             self.controller.msgbox.append("Donnez la direction de la porte à ouvrir. [ESC] pour annuler.")
         elif event.type == KEYDOWN and event.key == K_c:
-            self.controller.event_handler.append(DirectionForCommand(self.controller, "close_door"))
+            self.controller.event_handler.append(DirectionForCommand(self.controller, self.dungeon.close_door))
             self.controller.msgbox.append("Donnez la direction de la porte à fermer. [ESC] pour annuler.")
 
 
