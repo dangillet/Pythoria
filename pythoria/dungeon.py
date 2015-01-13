@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import itertools
-from pythoria.library import get_line, get_circle
-from pythoria.tile import *
-from pythoria.events import EventDispatcher
+from library import get_line, get_circle
+from tile import *
+from events import EventDispatcher
 
         
 class Dungeon(EventDispatcher):
@@ -65,9 +65,8 @@ class Dungeon(EventDispatcher):
         with open(filename, 'r', encoding='utf-8') as f:
             size = f.readline()
             width, height = map(int, size.strip().split(' '))
-            dungeon_map = f.readlines()
-            dungeon_map = list(map(lambda s: s.strip('\r\n'), dungeon_map))
-        
+            dungeon_map = f.read().split('\n')
+            dungeon_map = list(map(list, dungeon_map))
         return cls(width, height, dungeon_map)
     
     def add_player(self, player):

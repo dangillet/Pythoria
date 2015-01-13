@@ -5,14 +5,14 @@ import sys
 import pygcurse, pygame
 from pygame.locals import *
 
-from pythoria.hudview import HUDView
-from pythoria.messageboxview import MessageBoxView
-from pythoria.messagebox import MessageBox
-from pythoria.gameview import GameView
-from pythoria.dungeon import Dungeon
-from pythoria.dungeonview import DungeonView
-from pythoria.player import Player
-from pythoria.tile import Tile
+from hudview import HUDView
+from messageboxview import MessageBoxView
+from messagebox import MessageBox
+from gameview import GameView
+from dungeon import Dungeon
+from dungeonview import DungeonView
+from player import Player
+
 
 class DirectionForCommand():
     def __init__(self, controller, command):
@@ -28,13 +28,13 @@ class DirectionForCommand():
             self.controller.event_handler.pop()
             
         elif event.type == KEYDOWN and event.key == K_RIGHT:
-            self._execute_command(1, 0)
+            return self._execute_command(1, 0)
         elif event.type == KEYDOWN and event.key == K_LEFT:
-            self._execute_command(-1, 0)
+            return self._execute_command(-1, 0)
         elif event.type == KEYDOWN and event.key == K_UP:
-            self._execute_command(0, -1)
+            return self._execute_command(0, -1)
         elif event.type == KEYDOWN and event.key == K_DOWN:
-            self._execute_command(0, 1)
+            return self._execute_command(0, 1)
     
     def _execute_command(self, dir_x, dir_y):
         """Execute the registered command in the given direction"""
@@ -64,10 +64,10 @@ class GameEventHandler():
             self.dungeon.move_player(0, 1)
         elif event.type == KEYDOWN and event.key == K_o:
             self.controller.event_handler.append(DirectionForCommand(self.controller, "open_door"))
-            self.controller.msgbox.append("Donnez la direction de la porte à ouvrir. [ESC] pour annuler.")
+            self.controller.msgbox.add("Donnez la direction de la porte à ouvrir. [ESC] pour annuler.")
         elif event.type == KEYDOWN and event.key == K_c:
             self.controller.event_handler.append(DirectionForCommand(self.controller, "close_door"))
-            self.controller.msgbox.append("Donnez la direction de la porte à fermer. [ESC] pour annuler.")
+            self.controller.msgbox.add("Donnez la direction de la porte à fermer. [ESC] pour annuler.")
 
 
 class Controller():
@@ -105,17 +105,17 @@ if __name__ == '__main__':
     """
     win = pygcurse.PygcurseWindow(80, 30)
     win.font = pygame.font.Font(pygame.font.match_font('consolas'), 18)
-    level1 = Dungeon.load_from_file('map/map.txt')
+    level1 = Dungeon.load_from_file('map/bigmap.txt')
     player = Player(1, 1)
     level1.add_player(player)
-    msgbox = MessageBox()
+    msgbox = MessageBox(80, 5)
 
     view = GameView(
         win,
         {
-            DungeonView(level1):    (0,   0),
-            HUDView(player):        (300, 0),
-            MessageBoxView(msgbox): (0, 300)
+            DungeonView(level1):    (0  ,   0),
+            HUDView(player):        (700,   0),
+            MessageBoxView(msgbox): (0  , 500)
         }
     )
 

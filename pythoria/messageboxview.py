@@ -14,6 +14,6 @@ class MessageBoxView(pygcurse.PygcurseSurface):
     def draw(self):
         self.setscreencolors()
         self.cursor = (0, 0)
-        for msg in self.msgbox[-self.msgbox.height:]:
+        for msg in str(self.msgbox).split('\n')[-self.msgbox.height:]:
             self.write(msg + '\n')
         self.update()

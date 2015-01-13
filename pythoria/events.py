@@ -149,7 +149,3 @@ if __name__ == '__main__':
 
     del cont
     print(ed._listeners)
-
-    
-
-
