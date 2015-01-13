@@ -14,7 +14,7 @@ class HUDView(pygcurse.PygcurseSurface):
         self.autoupdate = False
 
     def draw(self):
-        self.setscreencolors()
+        self.setscreencolors(clear=True)
         self.cursor = (0, 0)
         self.putchars("Player")
         self.putchars("x={}".format(self.player.x), x=2, y=1)
