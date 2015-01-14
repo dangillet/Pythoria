@@ -5,13 +5,13 @@ import sys
 import pygcurse, pygame
 from pygame.locals import *
 
-from hudview import HUDView
-from messageboxview import MessageBoxView
-from messagebox import MessageBox
-from gameview import GameView
-from dungeon import Dungeon
-from dungeonview import DungeonView
-from player import Player
+from pythoria.hudview import HUDView
+from pythoria.messageboxview import MessageBoxView
+from pythoria.messagebox import MessageBox
+from pythoria.gameview import GameView
+from pythoria.dungeon import Dungeon
+from pythoria.dungeonview import DungeonView
+from pythoria.player import Player
 
 
 class DirectionForCommand():

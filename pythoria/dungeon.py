@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import itertools
-from library import get_line, get_circle
-from tile import *
-from events import EventDispatcher
+from pythoria.library import get_line, get_circle
+from pythoria.tile import *
+from pythoria.events import EventDispatcher
 
         
 class Dungeon(EventDispatcher):

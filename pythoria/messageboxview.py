@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import pygcurse, pygame
-import itertools
 import textwrap
 
 class MessageBoxView(pygcurse.PygcurseSurface):

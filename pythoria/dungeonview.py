@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pygcurse, pygame
-from dungeon import Dungeon
+from pythoria.dungeon import Dungeon
 
 PLAYER = '\N{WHITE SMILING FACE}' # Unicode for a smile
 
