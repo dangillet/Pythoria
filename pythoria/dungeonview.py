@@ -14,7 +14,7 @@ class DungeonView(pygcurse.PygcurseSurface):
 
     def __init__(self, dungeon):
         self.dungeon = dungeon
-        super(DungeonView, self).__init__(40, 30, DungeonView.font)
+        super(DungeonView, self).__init__(66, 30, DungeonView.font)
         self.autoupdate = False
         
     def draw(self):
