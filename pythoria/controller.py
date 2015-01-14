@@ -108,14 +108,14 @@ if __name__ == '__main__':
     level1 = Dungeon.load_from_file('map/bigmap.txt')
     player = Player(1, 1)
     level1.add_player(player)
-    msgbox = MessageBox(80, 5)
+    msgbox = MessageBox()
 
     view = GameView(
         win,
         {
-            DungeonView(level1):    (0  ,   0),
-            HUDView(player):        (700,   0),
-            MessageBoxView(msgbox): (0  , 500)
+            DungeonView(level1):           (0  ,   0),
+            HUDView(player):               (700,   0),
+            MessageBoxView(msgbox, 80, 5): (0  , 460)
         }
     )
 
