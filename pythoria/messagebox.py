@@ -7,9 +7,7 @@ import textwrap
 class MessageBox(list):
     def __init__(self, width=18, height=5, *msgs):
         self.wrapper = textwrap.TextWrapper(width=width)
-        super(MessageBox, self).__init__()
-        for msg in msgs:
-            self.append(self.wrapper.fill(msg))
+        super(MessageBox, self).__init__(map(self.wrapper.fill, msgs))
         self.width, self.height = width, height
 
     def add(self, msg):
