@@ -21,13 +21,12 @@ class DungeonView(pygcurse.PygcurseSurface):
         "Draw the dungeon and the player."
         self.setscreencolors()
         self.cursor = (0, 0)
-        for line in self.dungeon:
-            for tile in line:
+        for y, line in enumerate(self.dungeon):
+            for x, tile in enumerate(line):
                 if tile.visible:
-                    self.write(tile.value, bgcolor=(30, 30, 30))
+                    self.putchar(tile.value, bgcolor=(30, 30, 30), x=x, y=y)
                 else:
-                    self.write(' ')
-            self.write('\n')
+                    self.putchar(' ', x=x, y=y)
         if self.dungeon.player:
             for light_x, light_y in self.dungeon.player.fov:
                 if not self.dungeon[light_x, light_y].block_light:
