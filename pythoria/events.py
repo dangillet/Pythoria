@@ -124,7 +124,9 @@ class EventDispatcher:
         Removes a weak bound method for a given event class. The connection
         object contains this information.
         """
-        self._listeners[connection.event_type].remove(connection.listener)
+        list_bound_methods = self._listeners[connection.event_type]
+        if connection.listener in list_bound_methods:
+            list_bound_methods.remove(connection.listener)
         
 
 if __name__ == '__main__':

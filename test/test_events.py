@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import Mock, patch
 from pythoria import events
 
+
 class TestWeakBoundMethod(unittest.TestCase):
     def setUp(self):
         class MockClass:
@@ -42,6 +43,7 @@ class TestWeakBoundMethod(unittest.TestCase):
         with self.assertRaises(AssertionError):
             wbm()
 
+
 class TestConnection(unittest.TestCase):
     def test_cleanup_on_delete(self):
         ev_disp = Mock(name="Event Dispatcher")
@@ -49,14 +51,12 @@ class TestConnection(unittest.TestCase):
         del self.conn
         self.assertTrue(ev_disp.remove.called)
 
+
 class TestEventDispatcher(unittest.TestCase):
     def setUp(self):
         patcher_wbm = patch('pythoria.events.WeakBoundMethod', autospec=True)
-        patcher_con = patch('pythoria.events.Connection', autospec=True)
         self.WeakBoundMethod = patcher_wbm.start()
-        self.Connection = patcher_con.start()
         self.addCleanup(patcher_wbm.stop)
-        self.addCleanup(patcher_con.stop)
         
         self.listener = Mock(name="listener")
         self.listener_wbm = self.WeakBoundMethod.return_value
@@ -64,8 +64,8 @@ class TestEventDispatcher(unittest.TestCase):
         self.connection = self.ed.bind('test_event', self.listener)
     
     def test_bind(self):
-        self.assertIs(self.connection, self.Connection.return_value)
-        self.Connection.assert_called_with(self.ed, 'test_event', self.listener_wbm)
+        self.assertIs(self.connection.event_type, 'test_event')
+        self.assertIs(self.connection.listener, self.listener_wbm)
 
     def test_post(self):
         self.ed.post('test_event', 2, b=3)
@@ -76,12 +76,9 @@ class TestEventDispatcher(unittest.TestCase):
         self.assertFalse(self.listener_wbm.called)
     
     def test_remove(self):
-        with patch.object(self.ed, '_listeners') as mock_listeners:
-            self.connection.event_type = Mock()
-            self.connection.listener = Mock()
-            self.ed.remove(self.connection)
-            self.assertEqual(mock_listeners.mock_calls[0][0], '__getitem__') # Check for call.__getitem__
-            # Check that remove was called.
+        self.ed.remove(self.connection)
+        self.ed.post('test_event', 2, b=3)
+        self.assertFalse(self.listener_wbm.called)
         
 
 if __name__ == '__main__':
