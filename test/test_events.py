@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, patch
 from pythoria import events
 
-class TestWeakBoundMEthod(unittest.TestCase):
+class TestWeakBoundMethod(unittest.TestCase):
     def setUp(self):
-        self.bm = Mock(name='bound method')
-        self.bm.__self__ = Mock(name='self')
-        self.bm.__func__ = Mock(name='func')
+        class MockClass:
+            def mock_bound(self, *args, **kwargs):
+                return args, kwargs
+                
+        self.bm = MockClass().mock_bound
     
     def test_simple_func(self):
         mock = Mock()
@@ -17,7 +19,7 @@ class TestWeakBoundMEthod(unittest.TestCase):
             events.WeakBoundMethod(mock)
     
     def test_static_method(self):
-        class Mock:
+        class MockClass:
             @staticmethod
             def mock():
                 pass
@@ -30,18 +32,57 @@ class TestWeakBoundMEthod(unittest.TestCase):
     
     def test_call(self):
         wbm = events.WeakBoundMethod(self.bm)
-        wbm()
-        self.bm.__func__.assert_called_with(self.bm.__self__)
-        wbm(1, 2, 3)
-        self.bm.__func__.assert_called_with(self.bm.__self__, 1, 2, 3)
-    
-    @unittest.skip
+        self.assertEqual(wbm(), ((), {}))
+        self.assertEqual(wbm(1, 2, 3), ((1, 2, 3), {}))
+        self.assertEqual(wbm(a=1, b=2, c=3), ((), {'a':1, 'b':2, 'c':3}))
+        
     def test_call_when_dead(self):
-        wbm = events.WeakBoundMethod(self.mock.mock_bound)
-        del self.mock
+        wbm = events.WeakBoundMethod(self.bm)
+        del self.bm
         with self.assertRaises(AssertionError):
             wbm()
 
+class TestConnection(unittest.TestCase):
+    def test_cleanup_on_delete(self):
+        ev_disp = Mock(name="Event Dispatcher")
+        self.conn = events.Connection(ev_disp, Mock(), Mock())
+        del self.conn
+        self.assertTrue(ev_disp.remove.called)
+
+class TestEventDispatcher(unittest.TestCase):
+    def setUp(self):
+        patcher_wbm = patch('pythoria.events.WeakBoundMethod', autospec=True)
+        patcher_con = patch('pythoria.events.Connection', autospec=True)
+        self.WeakBoundMethod = patcher_wbm.start()
+        self.Connection = patcher_con.start()
+        self.addCleanup(patcher_wbm.stop)
+        self.addCleanup(patcher_con.stop)
+        
+        self.listener = Mock(name="listener")
+        self.listener_wbm = self.WeakBoundMethod.return_value
+        self.ed = events.EventDispatcher()
+        self.connection = self.ed.bind('test_event', self.listener)
+    
+    def test_bind(self):
+        self.assertIs(self.connection, self.Connection.return_value)
+        self.Connection.assert_called_with(self.ed, 'test_event', self.listener_wbm)
+
+    def test_post(self):
+        self.ed.post('test_event', 2, b=3)
+        self.listener_wbm.assert_called_with(2, b=3)
+        
+        self.listener_wbm.reset_mock()
+        self.ed.post('inexistant event', 2, b=3)
+        self.assertFalse(self.listener_wbm.called)
+    
+    def test_remove(self):
+        with patch.object(self.ed, '_listeners') as mock_listeners:
+            self.connection.event_type = Mock()
+            self.connection.listener = Mock()
+            self.ed.remove(self.connection)
+            self.assertEqual(mock_listeners.mock_calls[0][0], '__getitem__') # Check for call.__getitem__
+            # Check that remove was called.
+        
 
 if __name__ == '__main__':
     unittest.main()
