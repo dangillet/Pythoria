@@ -58,7 +58,7 @@ class WeakBoundMethod:
 
 class Connection:
     """
-    A Connection object knows the listener weakboundmethod for a given
+    A Connection object knows the listener WeakMethod for a given
     event type (string) in an event dispatcher.
     When the Connection gets deleted, it asks the event dispatcher to remove
     itself from its dict of listeners.
@@ -104,7 +104,7 @@ class EventDispatcher:
         Returns a Connection object which when deleted will remove the weak
         bound method from the listeners dict.
         """
-        listener = WeakBoundMethod(listener)
+        listener = weakref.WeakMethod(listener)
         self._listeners.setdefault(event_type, list()).append(listener)
         return Connection(self, event_type, listener)
 
@@ -115,7 +115,8 @@ class EventDispatcher:
         """
         try:
             for listener in self._listeners[event_type]:
-                listener(*args, **kwargs)
+                if listener():
+                    listener()(*args, **kwargs)
         except KeyError:
             pass # No listener interested in this event
     
@@ -127,27 +128,3 @@ class EventDispatcher:
         list_bound_methods = self._listeners[connection.event_type]
         if connection.listener in list_bound_methods:
             list_bound_methods.remove(connection.listener)
-        
-
-if __name__ == '__main__':
-    """
-    Creates a "Dummy Event" for a dummy Controller. Check if posting the 
-    "Dummy Event" works and if the listener is removed when the controller
-    gets deleted (and thus the connection object it contains).
-    """
-    
-    class Controller:
-        def __init__(self, event_dispatcher):
-            self.ed = event_dispatcher
-            self._connection = self.ed.bind("Dummy Event", self.on_event)
-        
-        def on_event(self):
-            print("In the on_event method")
-            
-    ed = EventDispatcher()
-    cont = Controller(ed)
-    ed.post("Dummy Event")
-    
-
-    del cont
-    print(ed._listeners)
