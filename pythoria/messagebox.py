@@ -8,8 +8,11 @@ class MessageBox(list):
         super(MessageBox, self).__init__(msgs)
 
     def add(self, msg):
-        date = datetime.datetime.now().strftime('[%H:%M:%S] ')
+        date = self._now().strftime('[%H:%M:%S] ')
         self.append(date + msg)
+    
+    def _now(self):
+        return datetime.datetime.now()
 
     def __str__(self):
         return '\n'.join(self)
