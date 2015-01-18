@@ -67,6 +67,11 @@ class TestDungeon(unittest.TestCase):
         self.assertEqual(self.test_map[6, 0], WALL_HIDDEN)
         self.assertRaises(IndexError, operator.getitem, self.test_map, (10, 0))
     
+    def test_getitem_slice(self):
+        first_two_rows = self.test_map[0: 2]
+        self.assertEqual(first_two_rows[0][0:2], [WALL_HIDDEN, WALL_HIDDEN])
+        self.assertEqual(first_two_rows[1][0:2], [WALL_HIDDEN, EMPTY_SPACE])
+    
     def test_setitem(self):
         new_tile = tile.Tile('#', True, False, True)
         self.test_map[2, 3] = new_tile

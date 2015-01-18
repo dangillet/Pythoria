@@ -98,7 +98,9 @@ class Dungeon(EventDispatcher):
         return (0 <= x < self.width) and (0 <= y < self.height)
     
     def __getitem__(self, key):
-        "Access the Tile at position [x, y]"
+        "Access the Tile at position [x, y] or get a slice"
+        if isinstance(key, slice):
+            return self._map[key]
         x, y = key
         if not self._within_bounds(x, y):
             raise IndexError

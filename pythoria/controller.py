@@ -10,7 +10,7 @@ from pythoria.messageboxview import MessageBoxView
 from pythoria.messagebox import MessageBox
 from pythoria.gameview import GameView
 from pythoria.dungeon import Dungeon
-from pythoria.dungeonview import DungeonView
+from pythoria.dungeonview import ScrollingView
 from pythoria.player import Player
 
 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     view = GameView(
         win,
         {
-            DungeonView(level1):           (0  ,   0),
+            ScrollingView(level1):         (0  ,   0),
             HUDView(player):               (700,   0),
             MessageBoxView(msgbox, 80, 5): (0  , 460)
         }
