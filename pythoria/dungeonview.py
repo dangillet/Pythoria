@@ -18,11 +18,16 @@ class DungeonView(pygcurse.PygcurseSurface):
         self.autoupdate = False
         
     def draw(self, left=0, top=0, width=None, height=None):
-        "Draw the dungeon and the player."
+        """
+        Draw the dungeon and the player.
+        left, top define where in the dungeon to start to draw and
+        width, height define how much to draw from the (left, top) position.
+        """
         self.setscreencolors()
         self.cursor = (0, 0)
         bottom = height and top + height # None if no height given
         right = width and left + width
+        
         for y, line in enumerate(self.dungeon[top:bottom]):
             for x, tile in enumerate(line[left:right]):
                 if tile.visible:
@@ -45,6 +50,10 @@ def clamp(value, min_, max_):
 
 
 class ScrollingView:
+    """
+    A view that manipulates a DungeonView to center the view on the player.
+    The view is constraint in the limits of the dungeon itself.
+    """
     def __init__(self, dungeon):
         self.width, self.height = 15, 15
         
@@ -55,6 +64,10 @@ class ScrollingView:
         self.player = dungeon.player
     
     def draw(self):
+        """
+        Calculate first the top left position of the DungeonView and
+        draw DungeonView.
+        """
         self.left = clamp(self.player.x - self.width // 2,
                           0, 
                           max(0, self.dungeon_width - self.width))
@@ -64,6 +77,9 @@ class ScrollingView:
         self.dungeon_view.draw(self.left, self.top, self.width, self.height)
         
     def blitto(self, *args, **kwargs):
+        """
+        Pass on the blitting to the DungeonView.
+        """
         self.dungeon_view.blitto(*args, **kwargs)
         
 
