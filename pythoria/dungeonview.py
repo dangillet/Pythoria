@@ -17,27 +17,33 @@ class DungeonView(pygcurse.PygcurseSurface):
         super(DungeonView, self).__init__(width, height, DungeonView.font)
         self.autoupdate = False
         
-    def draw(self, x=0, y=0, width=None, height=None):
+    def draw(self, left=0, top=0, width=None, height=None):
         "Draw the dungeon and the player."
         self.setscreencolors()
         self.cursor = (0, 0)
-        for y_offset, line in enumerate(self.dungeon[y:height+y]):
-            for x_offset, tile in enumerate(line[x:width+x]):
+        bottom = height and top + height # None if no height given
+        right = width and left + width
+        for y, line in enumerate(self.dungeon[top:bottom]):
+            for x, tile in enumerate(line[left:right]):
                 if tile.visible:
-                    self.putchar(tile.value, bgcolor=(30, 30, 30), x=x_offset, y=y_offset)
+                    self.putchar(tile.value, bgcolor=(30, 30, 30), x=x, y=y)
                 else:
-                    self.putchar(' ', x=x_offset, y=y_offset)
+                    self.putchar(' ', x=x, y=y)
+        
         if self.dungeon.player:
             for light_x, light_y in self.dungeon.player.fov:
                 if not self.dungeon[light_x, light_y].block_light:
-                    self.settint(30, 30, 0, (light_x-x, light_y-y, 1, 1))
-            self.putchar(PLAYER, x=self.dungeon.player.x-x, y=self.dungeon.player.y-y)
+                    self.settint(30, 30, 0, (light_x-left, light_y-top, 1, 1))
+            self.putchar(PLAYER, x=self.dungeon.player.x-left, y=self.dungeon.player.y-top)
         
         self.update()
 
+
 def clamp(value, min_, max_):
+    """Clamps value between min and max"""
     return min(max(value, min_), max_)
-    
+
+
 class ScrollingView:
     def __init__(self, dungeon):
         self.width, self.height = 15, 15
@@ -49,8 +55,12 @@ class ScrollingView:
         self.player = dungeon.player
     
     def draw(self):
-        self.left = clamp(self.player.x - self.width // 2, 0, self.dungeon_width)
-        self.top = clamp(self.player.y - self.height // 2, 0, self.dungeon_height)
+        self.left = clamp(self.player.x - self.width // 2,
+                          0, 
+                          max(0, self.dungeon_width - self.width))
+        self.top = clamp(self.player.y - self.height // 2,
+                         0,
+                         max(0, self.dungeon_height - self.height))
         self.dungeon_view.draw(self.left, self.top, self.width, self.height)
         
     def blitto(self, *args, **kwargs):
@@ -62,7 +72,7 @@ if __name__ == '__main__':
     win = pygcurse.PygcurseWindow(40,30)
     level1 = Dungeon.load_from_file('../test/map.txt')
     level1.add_player(player.Player(1, 1))
-    view = DungeonView(level1)
+    view = DungeonView(level1, 10, 10)
     view.draw()
     view.blitto(win.surface)
     win.blittowindow()
