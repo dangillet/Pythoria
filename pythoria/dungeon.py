@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import itertools
-from library import get_line, get_circle
-from tile import *
-from events import EventDispatcher
+
+from pythoria.library import get_line, get_circle
+from pythoria.tile import *
+from pythoria.events import EventDispatcher
+from pythoria.random_dungeon import DungeonGenerator
 
         
 class Dungeon(EventDispatcher):
@@ -26,8 +28,10 @@ class Dungeon(EventDispatcher):
     def _parse_text(self, dungeon_map):
         """
         Parse a list of strings into a Dungeon Map filled with Tiles
-        Whitespace for empty tile
+        Whitespace for empty tiles
         # for walls
+        + for doors
+        P for player position
         """
         for idx, line in enumerate(dungeon_map):
             if len(line) < self.width:
@@ -43,6 +47,9 @@ class Dungeon(EventDispatcher):
                     row_tiles.append(Tile('#', block_light=True, blocking=True))
                 elif col == ' ':
                     row_tiles.append(Tile())
+                elif col == 'P':
+                    row_tiles.append(Tile())
+                    self.player_pos = row_idx, col_idx
                 elif col == '+':
                     row_tiles.append(Door('+'))
                 elif col == "'":
@@ -69,9 +76,20 @@ class Dungeon(EventDispatcher):
             dungeon_map = list(map(list, dungeon_map))
         return cls(width, height, dungeon_map)
     
+    @classmethod
+    def generate(cls, width, height, room_amount):
+        """Generate a random dungeon"""
+        dungeon = cls(width, height)
+        dg = DungeonGenerator()
+        dg.generate_dungeon(width, height, room_amount)
+        dungeon._map = dg.dungeon
+        dungeon.player_pos = dg.place_player()
+        return dungeon 
+    
     def add_player(self, player):
-        "Add the player in the dungeon"
+        """Add the player in the dungeon"""
         self.player = player
+        self.player.pos = self.player_pos
         self.player.fov = self.get_field_of_vision(player.x, player.y, 5)
         self.reveal(self.player.fov)
     
@@ -89,7 +107,7 @@ class Dungeon(EventDispatcher):
             self.reveal(self.player.fov)
     
     def __iter__(self):
-        "Iterate over the rows of the dungeon"
+        """Iterate over the rows of the dungeon"""
         for line in self._map:
             yield line
     
@@ -98,7 +116,7 @@ class Dungeon(EventDispatcher):
         return (0 <= x < self.width) and (0 <= y < self.height)
     
     def __getitem__(self, key):
-        "Access the Tile at position [x, y] or get a slice"
+        """Access the Tile at position [x, y] or get a slice"""
         if isinstance(key, slice):
             return self._map[key]
         x, y = key
@@ -107,7 +125,7 @@ class Dungeon(EventDispatcher):
         return self._map[y][x]
     
     def __setitem__(self, key, tile):
-        "Set the Tile at position [x, y]"
+        """Set the Tile at position [x, y]"""
         x, y = key
         if not self._within_bounds(x, y):
             raise IndexError
@@ -116,7 +134,7 @@ class Dungeon(EventDispatcher):
         self._map[y][x] = tile
     
     def collide(self, x, y):
-        "Check if the Tile at position (x, y) is blocking."
+        """Check if the Tile at position (x, y) is blocking."""
         return self[x, y].blocking
     
     def reveal(self, cells):
@@ -212,7 +230,7 @@ class Dungeon(EventDispatcher):
         return True
     
     def _get_bounding_box(self, x, y, radius):
-        "Return the points delimiting the box at center (x, y) with size radius."
+        """Return the points delimiting the box at center (x, y) with size radius."""
         low_x, low_y = self._clamp_in_map(x - radius, y - radius)
         high_x, high_y = self._clamp_in_map(x + radius, y + radius)
         border = [] # Perimiter of the box
@@ -225,7 +243,7 @@ class Dungeon(EventDispatcher):
         return border
     
     def _get_bounding_circle(self, x, y, radius):
-        "Return the points delimiting the circle  at center (x, y) with given radius."
+        """Return the points delimiting the circle  at center (x, y) with given radius."""
         points = get_circle(x, y, radius)
         for i, point in enumerate(points):
             x, y = point
@@ -235,13 +253,13 @@ class Dungeon(EventDispatcher):
         return points
     
     def _clamp_in_map(self, x, y):
-        "Returns the position (x, y) bounded by the map geometry"
+        """Returns the position (x, y) bounded by the map geometry"""
         x = min(max(0, x), self.width - 1)
         y = min(max(0, y), self.height - 1)
         return x, y
         
     def reveal_all(self):
-        "Reveal the whole map"
+        """Reveal the whole map"""
         for row in self:
             for tile in row:
                 tile.visible=True

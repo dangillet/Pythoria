@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 class Player():
-    def __init__(self, x, y):
+    def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
     
-    def _set_pos(self, x, y):
+    def _set_pos(self, xy):
+        """Setter for the player position. xy is a tuple with (x, y) coords."""
+        x, y = xy
         self.x = x
         self.y = y
     
