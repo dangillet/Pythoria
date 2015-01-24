@@ -9,7 +9,6 @@ from pythoria import tile
 class Room:
     """
     This is a rectangle defined by its top left corner, a width and height.
-    Contains a set of edges connecting the room to other rooms in the graph.
     """
     def __init__(self, x, y, width, height):
         self.x = x
@@ -18,11 +17,6 @@ class Room:
         self.height = height
         self.cx = x + width // 2
         self.cy = y + height // 2
-        self.edges = set()
-    
-    def add_corridor(self, other_room):
-        self.edges.add(other_room)
-        other_room.edges.add(self)
     
     def collide(self, other):
         return not(self.x > other.x + other.width or other.x > self.x + self.width or \
@@ -215,7 +209,6 @@ class DungeonGenerator:
         room = not_visited.pop()
         while not_visited:
             other_room = self.find_closest(room, not_visited)
-            room.add_corridor(other_room)
             self.corridors.add(Corridor(room, other_room))
             not_visited.remove(other_room)
             room = other_room
