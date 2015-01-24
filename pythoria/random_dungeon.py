@@ -26,6 +26,11 @@ class Room:
         return "<Room {0} {1} {2} {3}>".format(self.x, self.y, self.width, self.height)
 
 class Corridor:
+    """
+    This defines a corridor between 2 rooms.
+    A corridor defined as from room_one to room_two is the same as from room_two
+    to room_one.
+    """
     def __init__(self, room_one, room_two):
         self.room_one = room_one
         self.room_two = room_two
@@ -49,53 +54,61 @@ class DungeonGenerator:
     
     Algorithm for the dungeon generation:
     - Place rooms_amount numbers of rooms randomly. For the moment the width and height
-      are constrained between 3 and 8.
-    - Construct a graph of rooms and edges being the corridors connecting rooms close
-      to each other.
-    - Create the corridors. Iterate over each room  and take the edge to connect to the
-      next room.
-      Take a random spot in each pair of rooms and draw a corridor by moving first 
-      horizontally and then vertically.
-    - Consider the start and enf of corridor. Try to place doors if it makes sense.
-      If that space is surrounded by exactly 2 walls, place a door. If it's next
-      to another door, then erase this door and place a wall instead.
+      are constrained between 3 and 7. For each room created, try to move apart the
+      existing room for better use of available space.
+    - Construct Corridors connecting rooms close to each other.
+    - Iterate over each pair of rooms for each Corridor.
+      Take a random spot in each pair of rooms and find the start and end of corridor.
+      Draw the corridor by moving first horizontally and then vertically.
+    - Try to place doors if it makes sense. If that space is surrounded by exactly 2 walls, 
+      place a door. If it's next to another door, then erase this door and place a wall instead.
     - Check for lonely doors. Some doors are surrounded by 3 empty spaces. Erase
       those doors.
     """
     def generate_dungeon(self, max_width, max_height, rooms_amount):
+        "Generate the dungeon map."
         self.dungeon = [[tile.Tile('#', block_light=True, blocking=True) for _ in range(max_width)] for _ in range(max_height)]
         self.rooms = []
         self.corridors = set()
         self.max_width = max_width
         self.max_height = max_height
-        self.rooms_amount = rooms_amount
 
-        self.create_rooms() # Maybe move them apart.
+        self.create_rooms(rooms_amount)
         self.create_corridors()
         self.check_for_lonely_doors()
     
     def place_player(self):
+        "Find an empty spot in a room for the player starting position."
         room = random.choice(self.rooms)
         x = random.randint(room.x, room.x + room.width -1)
         y = random.randint(room.y, room.y + room.height -1)
         return x, y
 
     def show_map(self):
+        """
+        Prints in the console the map using the usual symbols.
+        Surrounds the map with row and col indices
+        """
         print('   ', end='')
         print(''.join('{0:^3}'.format(i) for i in range(self.max_width)))
         for i, line in enumerate(self.dungeon):
             print('{0:^3}'.format(i), end='')
             print(''.join('{0:^3}'.format(_tile.value) for _tile in line))
             
-    def create_rooms(self):
+    def create_rooms(self, rooms_amount):
+        """
+        Create randomly placed rooms of size between 3 and 7 of width and height.
+        After 1000 unsuccesful attempts to place a room, raises a RunTimeError => no more space.
+        After each room creation, moves all rooms apart from the dungeon center.
+        """
         min_room_size, max_room_size = 3, 7
-        for _ in range(self.rooms_amount):
+        for _ in range(rooms_amount):
             counter = 0
             while True:
                 width, height = random.randint(min_room_size, max_room_size), random.randint(min_room_size, max_room_size)
                 x, y = random.randint(1, self.max_width - width - 1), random.randint(1, self.max_height - height - 1)
                 room = Room(x, y, width, height)
-                if all(not other_room.collide(room) for other_room in self.rooms):
+                if not self.room_collides_with_others(room):
                     break
                 counter += 1
                 if counter > 1000:
@@ -103,8 +116,8 @@ class DungeonGenerator:
             self.rooms.append(room)
             self.move_rooms_apart()
         
-        
         self.move_rooms_apart()
+        
         # Fill empty tile where the rooms are
         for room in self.rooms:
             for line in self.dungeon[room.y:room.y + room.height]:
@@ -112,6 +125,7 @@ class DungeonGenerator:
                 line[room.x:room.x + room.width] = [room_tile for _ in range(room.width)]
 
     def room_collides_with_others(self, room):
+        "Check if room collides with the other existing rooms"
         for other_room in self.rooms:
             if other_room is room:
                 continue
@@ -120,6 +134,10 @@ class DungeonGenerator:
         return False
     
     def move_rooms_apart(self):
+        """
+        Tries to move the room away from dungeon center according to 4 quadrants.
+        If room collides with another room, move back to initial position.
+        """
         cx = self.max_width // 2
         cy = self.max_height // 2
         for room in self.rooms:
@@ -144,10 +162,12 @@ class DungeonGenerator:
                 room.y -= offset_y
         
     def constrain_room_in_dungeon(self, room):
+        "Adjust room position to stay 1 square within the dungeon."
         room.x = min(max(room.x, 1), self.max_width - room.width - 1)
         room.y = min(max(room.y, 1), self.max_height - room.height - 1)
     
     def find_closest(self, room, rooms):
+        "Find the closest room from the iterable rooms."
         dist_list = []
         for other_room in rooms:
             if other_room is room:
@@ -158,6 +178,7 @@ class DungeonGenerator:
         return min(dist_list, key = operator.itemgetter(0))[1]
     
     def has_two_opposite_adjacent_walls(self, x, y):
+        "Check if the position (x, y) has 2 adjacent opposite walls."
         WALL = tile.Tile('#', True, True)
         if self.dungeon[y][x-1] == WALL and self.dungeon[y][x+1] == WALL:
             return True
@@ -166,6 +187,10 @@ class DungeonGenerator:
         return False
     
     def has_one_wall_and_one_door_opposite(self, x, y):
+        """
+        Check if the position (x, y) has one adjacent door and an opposite 
+        adjacent wall.
+        """
         DOOR = tile.Door()
         WALL = tile.Tile('#', True, True)
         if self.dungeon[y][x-1] in [WALL, DOOR] and \
@@ -179,6 +204,11 @@ class DungeonGenerator:
         return False
     
     def find_corridor(self, x_from, y_from, x_to, y_to):
+        """
+        Starting at position (x_from, y_from) proceed towards (x_to, y_to).
+        First occurence of a wall means start of the corridor.
+        Last occurence of a wall means end of corridor.
+        """
         squares = []
         while x_from != x_to or y_from != y_to:
             if x_from > x_to:
@@ -191,14 +221,14 @@ class DungeonGenerator:
                 y_from += 1
             squares.append( (x_from, y_from) )
         
-        start = end = None
+        start = end = None # In case no walls encountered
         for idx, (x, y) in enumerate(squares):
             if self.dungeon[y][x] == tile.Tile('#', block_light=True, blocking=True):
                 start = idx
                 break
         for idx, (x, y) in enumerate(reversed(squares)):
             if self.dungeon[y][x] == tile.Tile('#', block_light=True, blocking=True):
-                end = -idx
+                end = -idx # Minus sign for using as end slice
                 break
 
         return squares[start:end]
