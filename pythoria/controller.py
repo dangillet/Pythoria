@@ -5,14 +5,6 @@ import sys
 import pygcurse, pygame
 from pygame.locals import *
 
-from hudview import HUDView
-from messageboxview import MessageBoxView
-from messagebox import MessageBox
-from gameview import GameView
-from dungeon import Dungeon
-from dungeonview import ScrollingView
-from player import Player
-
 
 class DirectionForCommand():
     def __init__(self, controller, command):
