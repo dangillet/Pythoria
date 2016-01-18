@@ -11,7 +11,7 @@ Au programme:
 
 Promoteur du projet: Buffalo974
 
-# To install all librarys (pygcurse)
+## To install all librarys (pygcurse)
 
     pip3 install -r requirements.txt
 
