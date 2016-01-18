@@ -16,5 +16,6 @@ Promoteur du projet: Buffalo974
     pip3 install -r requirements.txt
 
 But can't install pygame with pip, so if you're archlinux like user, do :
+
     yaourt -S python-pygame-hg
 
