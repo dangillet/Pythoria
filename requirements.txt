@@ -1,1 +1,1 @@
-Pygcurse==0.10.3
+Pygcurse>=0.10.3
