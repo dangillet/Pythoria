@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import itertools
+import os.path
 
-from pythoria.library import get_line, get_circle
-from pythoria.tile import *
-from pythoria.events import EventDispatcher
-from pythoria.random_dungeon import DungeonGenerator
+from .library import get_line, get_circle
+from .tile import *
+from .events import EventDispatcher
+from .random_dungeon import DungeonGenerator
 
         
 class Dungeon(EventDispatcher):
@@ -69,7 +70,8 @@ class Dungeon(EventDispatcher):
         to fulfill width and height criteria.
         Wall: #
         """
-        with open(filename, 'r', encoding='utf-8') as f:
+        curr_dir = os.path.dirname(__file__)
+        with open(os.path.join(curr_dir, filename), 'r', encoding='utf-8') as f:
             size = f.readline()
             width, height = map(int, size.strip().split(' '))
             dungeon_map = f.read().split('\n')

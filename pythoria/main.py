@@ -5,14 +5,14 @@ import sys
 import pygcurse, pygame
 from pygame.locals import *
 
-from dungeon import Dungeon
-from player import Player
-from messagebox import MessageBox
-from gameview import GameView
-from dungeonview import ScrollingView
-from hudview import HUDView
-from messageboxview import MessageBoxView
-from controller import Controller
+from .dungeon import Dungeon
+from .player import Player
+from .messagebox import MessageBox
+from .gameview import GameView
+from .dungeonview import ScrollingView
+from .hudview import HUDView
+from .messageboxview import MessageBoxView
+from .controller import Controller
 
 def main():
     """

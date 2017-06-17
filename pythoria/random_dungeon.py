@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import random, operator
-from pythoria import tile
+from . import tile
 
 #random.seed(14)
 
@@ -282,7 +282,11 @@ class DungeonGenerator:
                     if count_empty_space > 2:
                         self.dungeon[y][x] = tile.Tile()
                         
-if __name__ == '__main__':
+
+def main():
     dg = DungeonGenerator()
-    dg.generate_dungeon(25, 20, 7)
+    dg.generate_dungeon(35, 40, 10)
     dg.show_map()
+
+if __name__ == '__main__':
+    main()

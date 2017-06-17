@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pygcurse, pygame
-from dungeon import Dungeon
+from .dungeon import Dungeon
 
 pygame.font.init()
 
